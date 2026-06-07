@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\PerhitunganController;
 use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,3 +26,5 @@ Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.s
 Route::get('/kriteria/{id}/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
 Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update');
 Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
+
+Route::get('/dashboard', [DashboardController::class, 'index']);
