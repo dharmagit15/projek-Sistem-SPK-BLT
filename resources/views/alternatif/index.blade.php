@@ -1,5 +1,10 @@
 @extends('layouts.app')
-
+@if(session('success'))
+<div class="mb-4 p-4 bg-secondary-container/20 border border-secondary text-secondary rounded-xl text-sm flex items-center gap-2">
+    <span class="material-symbols-outlined text-lg">check_circle</span>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
 @section('content')
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
@@ -11,10 +16,10 @@
         <h2 class="text-2xl font-bold text-on-surface">Kelola Alternatif</h2>
         <p class="text-on-surface-variant text-sm mt-1">Daftar warga calon penerima bantuan langsung tunai (BLT).</p>
     </div>
-    <button class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-sm transition-all active:scale-95">
-        <span class="material-symbols-outlined">person_add</span>
-        <span>Tambah Warga</span>
-    </button>
+    <a href="{{ route('alternatif.create') }}" class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-sm transition-all active:scale-95">
+    <span class="material-symbols-outlined">person_add</span>
+    <span>Tambah Warga</span>
+</a>
 </div>
 
 <div class="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
@@ -44,7 +49,7 @@
                     <td class="px-6 py-4 text-center">
                         @if($warga->status == 'Terverifikasi')
                             <span class="px-3 py-1 bg-secondary-container/30 text-secondary text-[11px] font-bold uppercase rounded-full">Terverifikasi</span>
-                        @elif($warga->status == 'Review')
+                        @elseif($warga->status == 'Review')
                             <span class="px-3 py-1 bg-tertiary-fixed text-tertiary-container text-[11px] font-bold uppercase rounded-full">Review</span>
                         @else
                             <span class="px-3 py-1 bg-error-container text-on-error-container text-[11px] font-bold uppercase rounded-full">Ditolak</span>
@@ -52,8 +57,8 @@
                     </td>
                     <td class="px-6 py-4 text-right">
                         <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a href="#" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-lg transition-all" title="Edit">
-                                <span class="material-symbols-outlined text-[20px]">edit</span>
+                            <a href="{{ route('alternatif.edit', $warga->id) }}" class="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-fixed rounded-lg transition-all" title="Edit">
+                             <span class="material-symbols-outlined text-[20px]">edit</span>
                             </a>
                             <form action="{{ route('alternatif.destroy', $warga->id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                                 @csrf
