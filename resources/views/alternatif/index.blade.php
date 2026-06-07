@@ -48,11 +48,10 @@
                     <td class="px-6 py-4">{{ $warga->no_telp }}</td>
                     <td class="px-6 py-4 text-center">
                         @if($warga->status == 'Terverifikasi')
-                            <span class="px-3 py-1 bg-secondary-container/30 text-secondary text-[11px] font-bold uppercase rounded-full">Terverifikasi</span>
-                        @elseif($warga->status == 'Review')
-                            <span class="px-3 py-1 bg-tertiary-fixed text-tertiary-container text-[11px] font-bold uppercase rounded-full">Review</span>
+                            <span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold">TERVERIFIKASI</span>
+                        @elseif($warga->status == 'Review') <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-bold">REVIEW</span>
                         @else
-                            <span class="px-3 py-1 bg-error-container text-on-error-container text-[11px] font-bold uppercase rounded-full">Ditolak</span>
+                            <span class="px-3 py-1 bg-error-container text-on-error-container rounded-full text-xs font-bold">DITOLAK</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-right">

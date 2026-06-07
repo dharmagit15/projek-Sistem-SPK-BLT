@@ -163,8 +163,9 @@
                         <span class="material-symbols-outlined">calculate</span><span>Perhitungan</span>
                     </a>
                     
-                    <a class="flex items-center gap-3 p-3 {{ request()->is('laporan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }} transition-colors rounded-xl" href="#">
-                        <span class="material-symbols-outlined">description</span><span>Laporan</span>
+                    <a class="flex items-center gap-3 px-4 py-3 {{ Request::is('laporan*') ? 'sidebar-active bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:bg-primary-container/20' }} rounded-xl transition-all duration-150" href="{{ route('laporan.index') }}">
+                        <span class="material-symbols-outlined">description</span>
+                        <span class="font-body-md text-body-md">Laporan</span>
                     </a>
                 </nav>
         </aside>
