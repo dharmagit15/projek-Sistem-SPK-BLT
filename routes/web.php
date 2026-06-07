@@ -5,6 +5,22 @@ use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\PerhitunganController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\SawController;
+use App\Http\Controllers\PenilaianController;
+
+
+Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
+Route::get('/penilaian/input/{id}', [PenilaianController::class, 'create'])->name('penilaian.create');
+Route::post('/penilaian/store/{id}', [PenilaianController::class, 'store'])->name('penilaian.store');
+// Rute untuk Perhitungan SAW
+// Rute untuk Perhitungan SAW
+Route::get('/perhitungan', [SawController::class, 'hitungSaw'])->name('perhitungan.index');
+
+// Rute untuk menampilkan form input nilai kriteria warga
+Route::get('/penilaian/input/{id}', [SawController::class, 'formNilai'])->name('penilaian.create');
+
+// Rute untuk memproses penyimpanan nilai kriteria ke database
+Route::post('/penilaian/store/{id}', [SawController::class, 'simpanNilai'])->name('penilaian.store');
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,3 +51,6 @@ Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('k
 // Letakkan di dalam grup middleware auth jika ada
 Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
+
+// Pastikan rute /perhitungan ini mengarah ke fungsi hitungSaw di Controller Anda
+Route::get('/perhitungan', [SawController::class, 'hitungSaw']);
