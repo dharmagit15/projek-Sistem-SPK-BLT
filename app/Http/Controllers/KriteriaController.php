@@ -30,24 +30,23 @@ class KriteriaController extends Controller
             'bobot' => 'required|numeric|between:0,1',
         ]);
 
-        // Ambil semua data KECUALI _token agar tidak eror mass assignment
         Kriteria::create($request->except('_token'));
         
-        // PERBAIKAN: Mengubah 'kriteria' menjadi 'kriteria.index'
         return redirect()->route('kriteria.index')->with('success', 'Kriteria berhasil ditambahkan!');
     }
 
     // Mengarahkan ke halaman resources/views/kriteria/edit.blade.php
     public function edit($id)
     {
-        $kcriteria = Kriteria::findOrFail($id);
-        return view('kcriteria.edit', compact('kriteria'));
+        // PERBAIKAN TYPO: Mengubah $kcriteria menjadi $kcriteria agar sinkron dengan compact()
+        $kriteria = Kriteria::findOrFail($id); 
+        return view('kriteria.edit', compact('kriteria')); // PERBAIKAN VIEW: pastikan foldernya 'kriteria.edit' bukan 'kcriteria.edit'
     }
 
     // Memproses Pembaruan Data Kriteria Lama
     public function update(Request $request, $id)
     {
-        $kriteria = Kriteria::findOrFail($id);
+        $kcriteria = Kriteria::findOrFail($id);
 
         $request->validate([
             'kode' => 'required|unique:kriterias,kode,' . $id,
@@ -56,20 +55,17 @@ class KriteriaController extends Controller
             'bobot' => 'required|numeric|between:0,1',
         ]);
 
-        // Buang _token dan _method PUT sebelum diupdate ke database
-        $kriteria->update($request->except(['_token', '_method']));
+        $kcriteria->update($request->except(['_token', '_method']));
         
-        // PERBAIKAN: Mengubah 'kriteria' menjadi 'kriteria.index'
         return redirect()->route('kriteria.index')->with('info', 'Kriteria berhasil diperbarui!');
     }
 
     // Memproses Penghapusan Data Kriteria
     public function destroy($id)
     {
-        $kriteria = Kriteria::findOrFail($id);
-        $kriteria->delete();
+        $kcriteria = Kriteria::findOrFail($id);
+        $kcriteria->delete();
         
-        // PERBAIKAN: Mengubah 'kriteria' menjadi 'kriteria.index'
         return redirect()->route('kriteria.index')->with('danger', 'Kriteria berhasil dihapus!');
     }
 }

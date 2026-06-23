@@ -9,23 +9,43 @@ use App\Http\Controllers\SawController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\DashboardController;
 
-// Halaman utama (bisa diakses siapa saja tanpa login)
-Route::get('/', function () {
-    return view('welcome');
-});
 
 // =========================================================================
-// GRUP ROUTE YANG DIPROTEKSI (User WAJIB Login)
+// 1. RUTE PUBLIK / LANDING PAGE (Bisa diakses siapa saja tanpa login)
+// =========================================================================
+Route::get('/', function () {
+    return view('welcome'); // Menggunakan tampilan CivicAssist SPK baru
+})->name('landing');
+
+// PINDAH KE SINI: Supaya tombol "Simulasi BLT" di depan bisa langsung diklik oleh siapa saja
+Route::get('/simulasi', function () {
+    return view('simulasi');
+})->name('user.simulasi');
+
+
+// =========================================================================
+// 2. RUTE KHUSUS PENGGUNA BIASA (Wajib Login, Bukan Admin)
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
+    
+    // Tempatkan rute khusus user biasa di sini jika nanti ada. Contoh:
+    // Route::get('/riwayat', [UserHistoryController::class, 'index'])->name('user.riwayat');
+    
+});
 
-    // Rute Dashboard Utama
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Kelola Alternatif
+// =========================================================================
+// 3. RUTE KHUSUS ADMIN (Wajib Login & Wajib Role Admin)
+// =========================================================================
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+
+    // Rute Dashboard Admin (URL: /admin/dashboard)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Kelola Alternatif (URL: /admin/alternatif)
     Route::resource('alternatif', AlternatifController::class);
 
-    // Kelola Kriteria (Diselaraskan menggunakan kriteria.index agar tidak error)
+    // Kelola Kriteria (URL: /admin/kriteria)
     Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria.index');
     Route::get('/kriteria/create', [KriteriaController::class, 'create'])->name('kriteria.create');
     Route::post('/kriteria', [KriteriaController::class, 'store'])->name('kriteria.store');
@@ -33,19 +53,21 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/kriteria/{id}', [KriteriaController::class, 'update'])->name('kriteria.update');
     Route::delete('/kriteria/{id}', [KriteriaController::class, 'destroy'])->name('kriteria.destroy');
 
-    // Penilaian & Perhitungan SAW
+    // Penilaian & Perhitungan SAW (URL: /admin/penilaian & /admin/perhitungan)
     Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
     Route::get('/penilaian/input/{id}', [SawController::class, 'formNilai'])->name('penilaian.create');
     Route::post('/penilaian/store/{id}', [SawController::class, 'simpanNilai'])->name('penilaian.store');
     Route::get('/perhitungan', [SawController::class, 'hitungSaw'])->name('perhitungan.index');
 
-    // Laporan
+    // Laporan (URL: /admin/laporan)
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
 
+    // BARIS SIMULASI YANG SALAH TEMPAT DI SINI SUDAH DIHAPUS
 });
 
+
 // =========================================================================
-// Memanggil Rute Otentikasi Laravel Breeze (Login, Register, dll)
+// 4. RUTE OTENTIKASI (Laravel Breeze: Login, Register, Logout, dll)
 // =========================================================================
 require __DIR__.'/auth.php';
