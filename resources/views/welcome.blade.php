@@ -119,12 +119,11 @@
 </head>
 <body class="bg-background text-on-background font-body-lg antialiased flex flex-col min-h-screen">
 
-
     <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
         <div class="flex items-center gap-8">
             <span class="font-headline-md text-headline-md font-bold text-primary">SPK-BLT</span>
             <div class="hidden md:flex gap-6">
-                <a class="text-primary font-bold border-b-2 border-primary py-1 text-body-lg" href="#">Programs</a>
+                <a class="text-primary font-bold border-b-2 border-primary py-1 text-body-lg" href="#">Program</a>
             </div>
         </div>
         
@@ -180,20 +179,6 @@
                         </a>
                     </div>
                 </div>
-                <div class="relative hidden md:block">
-                    <div class="w-full aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-200 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary text-9xl">analytics</span>
-                    </div>
-                    <div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-outline-variant flex items-center gap-4">
-                        <div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center">
-                            <span class="material-symbols-outlined text-on-secondary-container">verified</span>
-                        </div>
-                        <div>
-                            <div class="text-on-surface font-bold">Terverifikasi</div>
-                            <div class="text-on-surface-variant text-sm">Data Terintegrasi DTKS</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
@@ -225,35 +210,58 @@
                 <div class="text-center mb-16">
                     <h2 class="font-display-lg text-display-lg text-primary mb-4">Kriteria Penilaian</h2>
                     <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-                        Sistem kami menggunakan pembobotan otomatis berbasis kriteria utama untuk menjamin objektivitas dan keadilan dalam penyaluran bantuan.
+                        Sistem kami menggunakan 5 parameter kriteria utama di bawah ini untuk menjamin objektivitas, akurasi, dan keadilan dalam penentuan peringkat keluarga penerima manfaat.
                     </p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bento-card bg-white border border-outline-variant p-8 rounded-[2rem] flex flex-col justify-between">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <div class="bento-card bg-white border border-outline-variant p-6 rounded-[1.5rem] flex flex-col justify-between">
                         <div>
-                            <div class="w-14 h-14 bg-primary-fixed rounded-2xl flex items-center justify-center mb-6">
-                                <span class="material-symbols-outlined text-primary text-3xl">payments</span>
+                            <div class="w-12 h-12 bg-primary-fixed rounded-xl flex items-center justify-center mb-5">
+                                <span class="material-symbols-outlined text-primary text-2xl">payments</span>
                             </div>
-                            <h3 class="font-headline-md text-headline-md text-primary mb-4">Pendapatan</h3>
-                            <p class="text-on-surface-variant text-sm">Analisis total pemasukan bulanan rumah tangga untuk menentukan urgensi ekonomi.</p>
+                            <h3 class="text-lg font-bold text-primary mb-2">Pendapatan </h3>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">Analisis akumulasi pemasukan bulanan seluruh anggota keluarga untuk mengukur kekuatan finansial dasar.</p>
                         </div>
                     </div>
-                    <div class="bento-card bg-white border border-outline-variant p-8 rounded-[2rem] flex flex-col justify-between">
+
+                    <div class="bento-card bg-white border border-outline-variant p-6 rounded-[1.5rem] flex flex-col justify-between">
                         <div>
-                            <div class="w-14 h-14 bg-secondary-container rounded-2xl flex items-center justify-center mb-6">
-                                <span class="material-symbols-outlined text-on-secondary-container text-3xl">family_restroom</span>
+                            <div class="w-12 h-12 bg-surface-container rounded-xl flex items-center justify-center mb-5">
+                                <span class="material-symbols-outlined text-primary text-2xl">bolt</span>
                             </div>
-                            <h3 class="font-headline-md text-headline-md text-primary mb-4">Tanggungan</h3>
-                            <p class="text-on-surface-variant text-sm">Jumlah anggota keluarga non-produktif yang wajib ditanggung kepala keluarga.</p>
+                            <h3 class="text-lg font-bold text-primary mb-2">Daya Listrik </h3>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">Kapasitas batasan meteran listrik PLN (Volt-Ampere) yang terpasang di rumah sebagai indikator konsumsi aset harian.</p>
                         </div>
                     </div>
-                    <div class="bento-card bg-white border border-outline-variant p-8 rounded-[2rem] flex flex-col justify-between">
+
+                    <div class="bento-card bg-white border border-outline-variant p-6 rounded-[1.5rem] flex flex-col justify-between">
                         <div>
-                            <div class="w-14 h-14 bg-tertiary-fixed rounded-2xl flex items-center justify-center mb-6">
-                                <span class="material-symbols-outlined text-on-tertiary-fixed-variant text-3xl">home_work</span>
+                            <div class="w-12 h-12 bg-secondary-container rounded-xl flex items-center justify-center mb-5">
+                                <span class="material-symbols-outlined text-on-secondary-container text-2xl">family_restroom</span>
                             </div>
-                            <h3 class="font-headline-md text-headline-md text-primary mb-4">Kondisi Rumah</h3>
-                            <p class="text-on-surface-variant text-sm">Penilaian kelayakan fisik tempat tinggal bangunan utama dan sanitasi.</p>
+                            <h3 class="text-lg font-bold text-primary mb-2">Tanggungan </h3>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">Kuantitas banyaknya jumlah anggota keluarga tanggungan non-produktif (anak/lansia) dalam satu Kartu Keluarga.</p>
+                        </div>
+                    </div>
+
+                    <div class="bento-card bg-white border border-outline-variant p-6 rounded-[1.5rem] flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 bg-tertiary-fixed rounded-xl flex items-center justify-center mb-5">
+                                <span class="material-symbols-outlined text-on-tertiary-fixed-variant text-2xl">home_work</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-primary mb-2">Kondisi Rumah</h3>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">Penilaian visual fisik kelayakan kelengkapan bangunan, material lantai, dinding, atap, serta kondisi sanitasi.</p>
+                        </div>
+                    </div>
+
+                    <div class="bento-card bg-white border border-outline-variant p-6 rounded-[1.5rem] flex flex-col justify-between">
+                        <div>
+                            <div class="w-12 h-12 bg-error-container rounded-xl flex items-center justify-center mb-5">
+                                <span class="material-symbols-outlined text-on-error-container text-2xl">work</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-primary mb-2">Pekerjaan </h3>
+                            <p class="text-on-surface-variant text-xs leading-relaxed">Jenis stabilitas mata pencaharian kepala keluarga, meliputi kategori tidak bekerja, buruh harian, hingga pekerja lepas.</p>
                         </div>
                     </div>
                 </div>
@@ -288,16 +296,5 @@
             </p>
         </div>
     </footer>
-
-    <script>
-        document.getElementById('btn-cek')?.addEventListener('click', function() {
-            const input = document.getElementById('nik-input');
-            if (input.value.length === 16) {
-                alert('Pencarian NIK: ' + input.value + ' - Koneksi simulasi berhasil dilakukan!');
-            } else {
-                alert('Silakan masukkan 16 digit NIK yang valid.');
-            }
-        });
-    </script>
 </body>
 </html>

@@ -9,10 +9,10 @@
             <p class="text-sm text-slate-500 mt-1">Berikut adalah ringkasan data Sistem Pendukung Keputusan hari ini.</p>
         </div>
         <div>
-            <button class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
-                <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
-                Mulai Hitung SPK
-            </button>
+                <a href="http://127.0.0.1:8000/admin/kriteria" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
+        <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
+        Mulai Hitung SPK
+    </a>
         </div>
     </div>
 
