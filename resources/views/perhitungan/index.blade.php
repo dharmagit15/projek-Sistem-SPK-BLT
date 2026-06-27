@@ -1,201 +1,188 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="w-full">
 
+    {{-- Alert Success --}}
     @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-        <strong>Sukses!</strong> {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="flex justify-between items-center bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-lg shadow-sm">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-500">check_circle</span>
+            <p class="text-green-700 text-sm font-medium m-0"><strong>Sukses!</strong> {{ session('success') }}</p>
+        </div>
+        <button type="button" class="text-green-700 hover:bg-green-100 p-1 rounded-md transition-colors" data-bs-dismiss="alert" aria-label="Close">
+            <span class="material-symbols-outlined text-sm">close</span>
+        </button>
     </div>
     @endif
     
-    <style>
-        .table-custom-border, .table-custom-border th, .table-custom-border td {
-            border: 1px solid #000000 !important;
-        }
-    </style>
-    
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-table me-2"></i> 1. Matriks Keputusan (Nilai Asli Warga)</h5>
+    {{-- 1. Matriks Keputusan --}}
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant mb-8 overflow-hidden">
+        <div class="bg-primary px-6 py-4 flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-primary">    </span>
+            <h5 class="text-on-primary font-bold text-lg m-0">1. Matriks Keputusan (Nilai Asli Warga)</h5>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-custom-border table-hover table-striped align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th width="70px" class="text-center">No</th>
-                            <th>Nama Warga</th>
-                            @foreach($kriterias as $k)
-                                @php
-                                    // Normalisasi teks untuk memastikan pencocokan string 100% akurat
-                                    $namaClean = trim(strtolower($k->nama_kriteria));
-                                @endphp
-                                <th class="text-center text-nowrap">
-                                    <span class="d-block text-warning small fw-bold mb-1">
-                                        @if(str_contains($namaClean, 'pendapatan') || str_contains($namaClean, 'c1'))
-                                            C1 Pendapatan
-                                        @elseif(str_contains($namaClean, 'listrik') || str_contains($namaClean, 'c2'))
-                                            C2 Listrik
-                                        @elseif(str_contains($namaClean, 'tanggungan') || str_contains($namaClean, 'c3'))
-                                            C3 Tanggungan
-                                        @elseif(str_contains($namaClean, 'rumah') || str_contains($namaClean, 'c4'))
-                                            C4 Kondisi Rumah
-                                        @elseif(str_contains($namaClean, 'pekerjaan') || str_contains($namaClean, 'c5'))
-                                            C5 Status Pekerjaan
-                                        @else
-                                            {{ $k->nama_kriteria }}
-                                        @endif
-                                    </span>
-                                    <small class="text-light-50 fw-normal">({{ ucfirst(trim($k->jenis)) }})</small>
-                                </th>
-                            @endforeach
-                            <th width="180px" class="text-center">Aksi Integrasi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($hasilRanking as $row)
-                        <tr>
-                            <td class="text-center fw-bold text-secondary">{{ $loop->iteration }}</td>
-                            <td><span class="fw-semibold text-dark">{{ $row['nama'] }}</span></td>
-                            @foreach($kriterias as $k)
-                                <td class="text-center">
-                                    {{ number_format($row['detail_nilai_asli'][$k->id] ?? 0, 0, ',', '.') }}
-                                </td>
-                            @endforeach
-                            <td class="text-center">
-                                <a href="{{ url('/penilaian/input/' . $row['id']) }}" class="btn btn-sm btn-warning fw-bold px-3 shadow-sm text-dark">
-                                    📝 Isi / Ubah Nilai
-                                </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="{{ count($kriterias) + 3 }}" class="text-center py-4 text-muted">Data alternatif masih kosong.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="card-header bg-info text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-calculator me-2"></i> 2. Matriks Normalisasi (Nilai R)</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-custom-border table-hover table-striped align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th width="70px" class="text-center">No</th>
-                            <th>Nama Warga</th>
-                            @foreach($kriterias as $k)
-                                @php
-                                    $namaClean = trim(strtolower($k->nama_kriteria));
-                                @endphp
-                                <th class="text-center text-nowrap">
-                                    <span class="d-block text-warning small fw-bold mb-1">
-                                        @if(str_contains($namaClean, 'pendapatan') || str_contains($namaClean, 'c1'))
-                                            C1 Pendapatan
-                                        @elseif(str_contains($namaClean, 'listrik') || str_contains($namaClean, 'c2'))
-                                            C2 Listrik
-                                        @elseif(str_contains($namaClean, 'tanggungan') || str_contains($namaClean, 'c3'))
-                                            C3 Tanggungan
-                                        @elseif(str_contains($namaClean, 'rumah') || str_contains($namaClean, 'c4'))
-                                            C4 Kondisi Rumah
-                                        @elseif(str_contains($namaClean, 'pekerjaan') || str_contains($namaClean, 'c5'))
-                                            C5 Status Pekerjaan
-                                        @else
-                                            {{ $k->nama_kriteria }}
-                                        @endif
-                                    </span>
-                                    <small class="text-light-50 fw-normal">({{ ucfirst(trim($k->jenis)) }})</small>
-                                </th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($hasilRanking as $row)
-                        <tr>
-                            <td class="text-center fw-bold text-secondary">{{ $loop->iteration }}</td>
-                            <td class="text-dark fw-semibold">{{ $row['nama'] }}</td>
-                            @foreach($kriterias as $k)
-                                <td class="text-center fw-bold text-primary">
-                                    {{ number_format($row['detail_normalisasi'][$k->id] ?? 0, 3, ',', '.') }}
-                                </td>
-                            @endforeach
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="{{ count($kriterias) + 2 }}" class="text-center py-4 text-muted">Data normalisasi masih kosong.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow-sm border-0 mb-5">
-        <div class="card-header bg-success text-white py-3">
-            <h5 class="mb-0 fw-bold"><i class="fas fa-trophy me-2"></i> 3. Hasil Perankingan Akhir (Nilai V)</h5>
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-bordered table-custom-border table-hover align-middle mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th width="140px" class="text-center">Ranking</th>
-                            <th>NIK</th>
-                            <th>Nama Warga</th>
-                            <th>Alamat</th>
-                            <th>Status</th>
-                            <th class="text-center">Simulasi Rumus Akhir (Bobot * R)</th>
-                            <th class="text-end" width="160px">Skor Akhir (V)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($hasilRanking as $index => $row)
-                        <tr class="{{ $index == 0 ? 'table-warning fw-bold' : '' }}">
-                            <td class="text-center">
-                                @if($index == 0)
-                                    <span class="badge bg-warning text-dark px-3 py-2 shadow-sm">🥇 Rank 1</span>
-                                @elseif($index == 1)
-                                    <span class="badge bg-secondary px-3 py-2 shadow-sm">🥈 Rank 2</span>
-                                @elseif($index == 2)
-                                    <span class="badge bg-danger px-3 py-2 shadow-sm">🥉 Rank 3</span>
-                                @else
-                                    <span class="badge bg-light text-dark border px-3 py-2">{{ $index + 1 }}</span>
-                                @endif
-                            </td>
-                            <td class="text-muted">{{ $row['nik'] }}</td>
-                            <td><span class="fw-bold text-dark">{{ $row['nama'] }}</span></td>
-                            <td class="text-muted">{{ $row['alamat'] }}</td>
-                            <td>
-                                <span class="badge {{ $row['status'] == 'Terverifikasi' ? 'bg-success' : ($row['status'] == 'Review' ? 'bg-warning text-dark' : 'bg-danger') }}">
-                                    {{ $row['status'] }}
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-xs uppercase bg-surface-container-low text-on-surface border-b border-outline-variant">
+                    <tr>
+                        <th class="px-6 py-4 text-center font-bold border-r border-outline-variant/30 w-16">No</th>
+                        <th class="px-6 py-4 font-bold border-r border-outline-variant/30">Nama Warga</th>
+                        {{-- Mengambil Kode dan Keterangan Kriteria secara Dinamis --}}
+                        @foreach($kriterias as $k)
+                            <th class="px-4 py-4 text-center font-bold border-r border-outline-variant/30">
+                                <span class="block text-primary font-extrabold text-xs uppercase tracking-wider">
+                                    {{ $k->kode ?? 'C'.$loop->iteration }}
                                 </span>
+                                <span class="block text-on-surface font-medium text-[11px] mt-0.5 normal-case text-muted">
+                                    {{ $k->nama_kriteria ?? $k->nama }}
+                                </span>
+                                <span class="inline-block mt-1 text-on-surface-variant text-[9px] font-bold bg-surface-container py-0.5 px-2 rounded-full">
+                                    ({{ ucfirst(trim($k->jenis)) }})
+                                </span>
+                            </th>
+                        @endforeach
+                        <th class="px-6 py-4 text-center font-bold">Aksi Integrasi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    @forelse($hasilRanking as $row)
+                    <tr class="hover:bg-surface-container-lowest transition-colors">
+                        <td class="px-6 py-4 text-center font-semibold text-on-surface-variant">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 font-semibold text-on-surface">{{ $row['nama'] }}</td>
+                        @foreach($kriterias as $k)
+                            <td class="px-4 py-4 text-center text-on-surface">
+                                {{ number_format($row['detail_nilai_asli'][$k->id] ?? 0, 0, ',', '.') }}
                             </td>
-                            <td class="bg-light text-center">
-                                <code class="text-dark fw-bold" style="font-size: 0.95rem; font-family: 'Courier New', Courier, monospace;">
-                                    {{ $row['teks_rumus'] ?? '-' }}
-                                </code>
+                        @endforeach
+                        <td class="px-6 py-4 text-center">
+                            <a href="{{ route('penilaian.create', $row['id']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg text-xs font-bold transition-colors">
+                                <span class="material-symbols-outlined text-[16px]">edit_note</span> Isi / Ubah Nilai
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="{{ count($kriterias) + 3 }}" class="px-6 py-8 text-center text-on-surface-variant bg-surface">Data alternatif masih kosong.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- 2. Matriks Normalisasi --}}
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant mb-8 overflow-hidden">
+        <div class="bg-sky-600 px-6 py-4 flex items-center gap-3">
+            <span class="material-symbols-outlined text-white">tune</span>
+            <h5 class="text-white font-bold text-lg m-0">2. Matriks Normalisasi (Nilai R)</h5>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-xs uppercase bg-sky-50 text-sky-900 border-b border-sky-100">
+                    <tr>
+                        <th class="px-6 py-4 text-center font-bold border-r border-sky-100 w-16">No</th>
+                        <th class="px-6 py-4 font-bold border-r border-sky-100">Nama Warga</th>
+                        {{-- Mengambil Kode dan Keterangan Kriteria secara Dinamis --}}
+                        @foreach($kriterias as $k)
+                            <th class="px-4 py-4 text-center font-bold border-r border-sky-100">
+                                <span class="block text-sky-700 font-extrabold text-xs uppercase tracking-wider">
+                                    {{ $k->kode ?? 'C'.$loop->iteration }}
+                                </span>
+                                <span class="block text-sky-900 font-medium text-[11px] mt-0.5 normal-case">
+                                    {{ $k->nama_kriteria ?? $k->nama }}
+                                </span>
+                                <span class="inline-block mt-1 text-sky-600/70 text-[9px] font-bold bg-sky-100 py-0.5 px-2 rounded-full">
+                                    ({{ ucfirst(trim($k->jenis)) }})
+                                </span>
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    @forelse($hasilRanking as $row)
+                    <tr class="hover:bg-surface-container-lowest transition-colors">
+                        <td class="px-6 py-4 text-center font-semibold text-on-surface-variant">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 font-semibold text-on-surface">{{ $row['nama'] }}</td>
+                        @foreach($kriterias as $k)
+                            <td class="px-4 py-4 text-center font-semibold text-sky-600">
+                                {{ number_format($row['detail_normalisasi'][$k->id] ?? 0, 3, ',', '.') }}
                             </td>
-                            <td class="text-end text-success fw-bold">
-                                <span style="font-size: 1.1rem;">{{ number_format($row['skor_akhir'], 4, ',', '.') }}</span>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Belum ada data perhitungan.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        @endforeach
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="{{ count($kriterias) + 2 }}" class="px-6 py-8 text-center text-on-surface-variant bg-surface">Data normalisasi masih kosong.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- 3. Hasil Perankingan Akhir --}}
+    <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant mb-8 overflow-hidden">
+        <div class="bg-emerald-600 px-6 py-4 flex items-center gap-3">
+            <span class="material-symbols-outlined text-white"></span>
+            <h5 class="text-white font-bold text-lg m-0">3. Hasil Perankingan Akhir (Nilai V)</h5>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs uppercase bg-emerald-50 text-emerald-900 border-b border-emerald-100">
+                    <tr>
+                        <th class="px-6 py-4 text-center font-bold w-32">Ranking</th>
+                        <th class="px-6 py-4 font-bold">NIK</th>
+                        <th class="px-6 py-4 font-bold">Nama Warga</th>
+                        <th class="px-6 py-4 font-bold">Alamat</th>
+                        <th class="px-6 py-4 font-bold">Status</th>
+                        <th class="px-6 py-4 text-center font-bold">Simulasi Rumus (Bobot * R)</th>
+                        <th class="px-6 py-4 text-right font-bold w-40">Skor Akhir (V)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    @forelse($hasilRanking as $index => $row)
+                    <tr class="{{ $index == 0 ? 'bg-yellow-50/50' : 'hover:bg-surface-container-lowest' }} transition-colors">
+                        <td class="px-6 py-4 text-center">
+                            @if($index == 0)
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold shadow-sm"> Rank 1</span>
+                            @elseif($index == 1)
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-xs font-bold shadow-sm"> Rank 2</span>
+                            @elseif($index == 2)
+                                <span class="inline-flex items-center gap-1 px-3 py-1 bg-orange-200 text-orange-800 rounded-full text-xs font-bold shadow-sm"> Rank 3</span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 bg-surface-container text-on-surface-variant border border-outline-variant rounded-full text-xs font-bold">{{ $index + 1 }}</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-on-surface-variant whitespace-nowrap">{{ $row['nik'] }}</td>
+                        <td class="px-6 py-4 font-bold text-on-surface whitespace-nowrap">{{ $row['nama'] }}</td>
+                        <td class="px-6 py-4 text-on-surface-variant min-w-[150px]">{{ $row['alamat'] }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold 
+                                {{ $row['status'] == 'Terverifikasi' ? 'bg-green-100 text-green-700' : ($row['status'] == 'Review' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') }}">
+                                {{ $row['status'] }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center text-[13px]">
+                            <code class="px-2 py-1 bg-surface-container rounded text-on-surface font-mono tracking-tight text-xs block min-w-[200px]">
+                                {{ $row['teks_rumus'] ?? '-' }}
+                            </code>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <span class="text-[17px] font-extrabold text-emerald-600">
+                                {{ number_format($row['skor_akhir'], 4, ',', '.') }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-on-surface-variant bg-surface">Belum ada data perhitungan.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

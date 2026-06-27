@@ -56,7 +56,7 @@ class SawController extends Controller
                 $pivot = $alt->kriterias->where('id', $kcriteria->id)->first();
                 $nilaiAsli = $pivot ? (float)$pivot->pivot->nilai : 0.0;
 
-                $maxGlobal = $matriksMaksMin[$kcriteria->id]['max'];
+                $maxGlobal = $matriksMaksMin[$kcriteria->id]['max'];    
                 $minGlobal = $matriksMaksMin[$kcriteria->id]['min'];
 
                 $nilaiNormalisasi = 0;
@@ -122,6 +122,9 @@ class SawController extends Controller
     /**
      * PROSES STORE: Sinkronisasi data ke tabel pivot alternatif_kriteria
      */
+/**
+ * PROSES STORE: Sinkronisasi data ke tabel pivot alternatif_kriteria
+ */
     public function simpanNilai(Request $request, $id)
     {
         $warga = Alternatif::findOrFail($id);
@@ -138,6 +141,8 @@ class SawController extends Controller
 
         $warga->kriterias()->sync($syncData);
 
-        return redirect('/perhitungan')->with('success', 'Nilai kriteria warga berhasil diintegrasikan!');
+        // PERBAIKAN: Gunakan route() agar Laravel otomatis menyesuaikan dengan prefix admin
+        return redirect()->route('perhitungan.index')
+                        ->with('success', 'Nilai kriteria warga berhasil diintegrasikan!');
     }
 }
