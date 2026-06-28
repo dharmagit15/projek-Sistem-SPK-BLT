@@ -108,12 +108,41 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .bento-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px -10px rgba(0, 35, 111, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 35, 111, 0.18);
         }
         .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(220, 225, 255, 0.5), transparent),
-                        radial-gradient(circle at bottom left, rgba(248, 249, 255, 1), transparent);
+            background:
+                radial-gradient(circle at top right, rgba(182, 196, 255, 0.6), transparent),
+                radial-gradient(circle at bottom left, rgba(108, 248, 187, 0.18), transparent),
+                #f8f9ff;
+        }
+        .floating {
+            animation: floating 5s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        .stat-card{
+            transition: all .3s ease;
+        }
+        .stat-card:hover{
+            transform: translateY(-6px);
+        }
+        .stat-card:hover .material-symbols-outlined{
+            transform: scale(1.2);
+            transition: .3s;
         }
     </style>
 </head>
@@ -167,23 +196,26 @@
             <div class="max-w-container-max mx-auto grid md:grid-cols-2 gap-12 items-center">
                 <div class="z-10">
                     <span class="inline-block px-3 py-1 mb-6 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-md text-label-md">SISTEM PENDUKUNG KEPUTUSAN</span>
-                    <h1 class="font-display-lg text-display-lg md:text-5xl md:leading-tight text-primary mb-6">
+                    <h1 class="font-display-lg text-display-lg md:text-6xl font-extrabold leading-tight text-primary mb-6">
                         Transparansi Penyaluran Bantuan Sosial
                     </h1>
                     <p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-lg">
                         Memastikan bantuan tepat sasaran melalui analisis data yang akurat dan transparan untuk masyarakat yang membutuhkan. Didukung oleh metode Simple Additive Weighting (SAW).
                     </p>
                     <div class="flex flex-wrap gap-4">
-                        <a class="bg-primary text-on-primary px-8 py-4 rounded-xl font-headline-sm text-headline-sm flex items-center gap-2 hover:shadow-lg transition-all" href="#cek-kelayakan">
+                        <a class="bg-primary text-on-primary px-8 py-4 rounded-xl font-headline-sm text-headline-sm flex items-center gap-2 hover:shadow-2xl hover:scale-105 transition-all duration-300" href="#cek-kelayakan">
                             Cek Status Penerimaan
                             <span class="material-symbols-outlined">arrow_forward</span>
                         </a>
                     </div>
                 </div>
                 <div class="relative hidden md:block">
-                    <div class="w-full aspect-square rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-200 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary text-9xl">analytics</span>
-                    </div>
+
+                    <img
+                        src="{{ asset('images/hero.png') }}"
+                        alt="Hero SPK BLT"
+                        class="floating w-full rounded-3xl shadow-2xl border-4 border-white object-cover">
+
                     <div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl border border-outline-variant flex items-center gap-4">
                         <div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center">
                             <span class="material-symbols-outlined text-on-secondary-container">verified</span>
@@ -200,19 +232,31 @@
         <section class="py-16 bg-primary text-on-primary px-margin-desktop">
             <div class="max-w-container-max mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div class="text-center p-6">
+                    <div class="stat-card text-center p-6">
+                        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/15 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">groups</span>
+                        </div>
                         <div class="font-display-lg text-display-lg mb-2">1.2M+</div>
                         <div class="font-label-md text-label-md opacity-80">Total Penerima Manfaat</div>
                     </div>
-                    <div class="text-center p-6 border-l border-white/10">
+                    <div class="stat-card text-center p-6 border-l border-white/10">
+                        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/15 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">payments</span>
+                        </div>
                         <div class="font-display-lg text-display-lg mb-2">Rp 4.2T</div>
                         <div class="font-label-md text-label-md opacity-80">Dana Terdistribusi</div>
                     </div>
-                    <div class="text-center p-6 border-l border-white/10">
+                    <div class="stat-card text-center p-6 border-l border-white/10">
+                        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/15 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">verified</span>
+                        </div>
                         <div class="font-display-lg text-display-lg mb-2">99.8%</div>
                         <div class="font-label-md text-label-md opacity-80">Akurasi Penyaluran</div>
                     </div>
-                    <div class="text-center p-6 border-l border-white/10">
+                    <div class="stat-card text-center p-6 border-l border-white/10">
+                        <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-white/15 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">location_city</span>
+                        </div>
                         <div class="font-display-lg text-display-lg mb-2">514</div>
                         <div class="font-label-md text-label-md opacity-80">Kabupaten/Kota Terjangkau</div>
                     </div>
