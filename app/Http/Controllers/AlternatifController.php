@@ -8,12 +8,31 @@ use Illuminate\Http\Request;
 class AlternatifController extends Controller
 {
     // 1. Menampilkan halaman index utama menggunakan Eloquent Model
-    public function index()
+    public function index(Request $request)
     {
-        // Mengubah \DB::table menjadi Alternatif::query() agar sinkron dengan model global scope
-        $alternatifs = Alternatif::orderBy('id', 'desc')->paginate(10);
+        // Ambil parameter dari query string (?search=...&status=...&per_page=...)
+        $search  = $request->input('search');
+        $status  = $request->input('status');
+        $perPage = $request->input('per_page', 10);
 
-        return view('alternatif.index', compact('alternatifs'));
+        $alternatifs = Alternatif::query()
+            // QUERY DINAMIS: klausa where hanya ditambahkan jika $search terisi
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nik', 'like', "%{$search}%")
+                      ->orWhere('nama', 'like', "%{$search}%")
+                      ->orWhere('alamat', 'like', "%{$search}%");
+                });
+            })
+            // QUERY DINAMIS: filter status hanya diterapkan jika dipilih
+            ->when($status, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->orderBy('id', 'desc')
+            ->paginate($perPage)
+            ->withQueryString(); // pertahankan ?search=..&status=.. saat pindah halaman
+
+        return view('alternatif.index', compact('alternatifs', 'search', 'status', 'perPage'));
     }
 
     // 2. Menampilkan formulir tambah data warga
@@ -26,24 +45,35 @@ class AlternatifController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nik'     => 'required|numeric|digits:16|unique:alternatifs,nik',
-            'nama'    => 'required|string|max:255',
-            'alamat'  => 'required|string',
-            'no_telp' => 'required|string|max:20',
-            'status'  => 'required|in:Terverifikasi,Review,Ditolak',
+            'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik',
+            'nama'     => 'required|string|max:255',
+            'alamat'   => 'required|string',
+            'no_telp'  => 'required|string|max:20',
+            'status'   => 'required|in:Terverifikasi,Review,Ditolak',
+            'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
             'nik.unique'   => 'NIK ini sudah terdaftar di sistem.',
             'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+            'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
         ]);
 
+        // Simpan file foto KTP jika diunggah
+        $fotoPath = null;
+        if ($request->hasFile('foto_ktp')) {
+            $fotoPath = $request->file('foto_ktp')->store('foto-ktp', 'public');
+        }
+
         Alternatif::create([
-            'nik'     => $request->nik,
-            'nama'    => $request->nama,
-            'alamat'  => $request->alamat,
-            'no_telp' => $request->no_telp,
-            'status'  => $request->status,
+            'nik'      => $request->nik,
+            'nama'     => $request->nama,
+            'alamat'   => $request->alamat,
+            'no_telp'  => $request->no_telp,
+            'status'   => $request->status,
+            'foto_ktp' => $fotoPath,
         ]);
 
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil ditambahkan!');
@@ -53,6 +83,12 @@ class AlternatifController extends Controller
     public function destroy($id)
     {
         $warga = Alternatif::findOrFail($id);
+
+        // Hapus file foto KTP dari storage jika ada
+        if ($warga->foto_ktp && \Storage::disk('public')->exists($warga->foto_ktp)) {
+            \Storage::disk('public')->delete($warga->foto_ktp);
+        }
+
         $warga->delete();
 
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil dihapus.');
@@ -72,24 +108,39 @@ class AlternatifController extends Controller
         $warga = Alternatif::findOrFail($id);
 
         $request->validate([
-            'nik'     => 'required|numeric|digits:16|unique:alternatifs,nik,' . $warga->id,
-            'nama'    => 'required|string|max:255',
-            'alamat'  => 'required|string',
-            'no_telp' => 'required|string|max:20',
-            'status'  => 'required|in:Terverifikasi,Review,Ditolak',
+            'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik,' . $warga->id,
+            'nama'     => 'required|string|max:255',
+            'alamat'   => 'required|string',
+            'no_telp'  => 'required|string|max:20',
+            'status'   => 'required|in:Terverifikasi,Review,Ditolak',
+            'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ], [
             'nik.required' => 'NIK wajib diisi.',
             'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
             'nik.unique'   => 'NIK ini sudah digunakan oleh warga lain.',
             'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+            'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
         ]);
 
+        $fotoPath = $warga->foto_ktp;
+
+        // Jika ada foto baru diunggah, hapus foto lama lalu simpan yang baru
+        if ($request->hasFile('foto_ktp')) {
+            if ($fotoPath && \Storage::disk('public')->exists($fotoPath)) {
+                \Storage::disk('public')->delete($fotoPath);
+            }
+            $fotoPath = $request->file('foto_ktp')->store('foto-ktp', 'public');
+        }
+
         $warga->update([
-            'nik'     => $request->nik,
-            'nama'    => $request->nama,
-            'alamat'  => $request->alamat,
-            'no_telp' => $request->no_telp,
-            'status'  => $request->status,
+            'nik'      => $request->nik,
+            'nama'     => $request->nama,
+            'alamat'   => $request->alamat,
+            'no_telp'  => $request->no_telp,
+            'status'   => $request->status,
+            'foto_ktp' => $fotoPath,
         ]);
 
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil diperbarui!');

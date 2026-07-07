@@ -11,7 +11,7 @@ class Alternatif extends Model
 
     protected $table = 'alternatifs';
 
-    protected $fillable = ['nik', 'nama', 'alamat', 'no_telp', 'status'];
+    protected $fillable = ['nik', 'nama', 'alamat', 'no_telp', 'status', 'foto_ktp'];
 
     /**
      * Relasi Many-to-Many ke Kriteria melalui tabel pivot alternatif_kriteria
