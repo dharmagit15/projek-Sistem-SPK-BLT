@@ -159,7 +159,7 @@
 
     <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('alternatif*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
     href="{{ route('alternatif.index') }}">
-        <span class="material-symbols-outlined">groups</span><span>Alternatif</span>
+        <span class="material-symbols-outlined">groups</span><span>Kelola Warga</span>
     </a>
 
     <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('perhitungan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"

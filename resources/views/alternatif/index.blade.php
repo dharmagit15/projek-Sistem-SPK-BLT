@@ -13,9 +13,9 @@
         <nav class="flex items-center gap-2 text-on-surface-variant text-xs mb-2">
             <span>Dashboard</span>
             <span class="material-symbols-outlined text-sm">chevron_right</span>
-            <span class="text-primary font-bold">Alternatif</span>
+            <span class="text-primary font-bold">Warga</span>
         </nav>
-        <h2 class="text-2xl font-bold text-on-surface">Kelola Alternatif</h2>
+        <h2 class="text-2xl font-bold text-on-surface">Kelola Warga</h2>
         <p class="text-on-surface-variant text-sm mt-1">Daftar warga calon penerima bantuan langsung tunai (BLT).</p>
     </div>
     <a href="{{ route('alternatif.create') }}" class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2.5 rounded-xl flex items-center gap-2 font-semibold shadow-sm transition-all active:scale-95">
