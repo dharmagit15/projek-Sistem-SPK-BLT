@@ -24,12 +24,50 @@
     </a>
 </div>
 
+{{-- FORM PENCARIAN & FILTER (Query Dinamis) --}}
+<form action="{{ route('alternatif.index') }}" method="GET" class="bg-white border border-outline-variant rounded-xl shadow-sm p-4 mb-4 flex flex-col md:flex-row gap-3 md:items-center">
+    <div class="relative flex-1">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+        <input
+            type="text"
+            name="search"
+            value="{{ $search }}"
+            placeholder="Cari NIK, nama, atau alamat..."
+            class="w-full pl-10 pr-4 py-2.5 border border-outline-variant rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+        >
+    </div>
+
+    <select name="status" class="border border-outline-variant rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+        <option value="">Semua Status</option>
+        <option value="Terverifikasi" @selected($status === 'Terverifikasi')>Terverifikasi</option>
+        <option value="Review" @selected($status === 'Review')>Review</option>
+        <option value="Ditolak" @selected($status === 'Ditolak')>Ditolak</option>
+    </select>
+
+    <select name="per_page" class="border border-outline-variant rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40">
+        @foreach([10, 25, 50, 100] as $opt)
+            <option value="{{ $opt }}" @selected((int) $perPage === $opt)>{{ $opt }} / halaman</option>
+        @endforeach
+    </select>
+
+    <button type="submit" class="bg-primary hover:bg-primary-container text-on-primary px-6 py-2.5 rounded-xl font-semibold shadow-sm transition-all active:scale-95">
+        Terapkan
+    </button>
+
+    @if($search || $status)
+        <a href="{{ route('alternatif.index') }}" class="text-sm text-on-surface-variant hover:text-primary underline text-center">
+            Reset
+        </a>
+    @endif
+</form>
+
 <div class="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-surface-bright text-on-surface-variant text-xs uppercase tracking-wider border-b border-outline-variant">
                     <th class="px-6 py-4 font-semibold w-16 text-center">No</th>
+                    <th class="px-6 py-4 font-semibold text-center">Foto</th>
                     <th class="px-6 py-4 font-semibold">NIK</th>
                     <th class="px-6 py-4 font-semibold">Nama Kepala Keluarga</th>
                     <th class="px-6 py-4 font-semibold">Alamat</th>
@@ -43,6 +81,18 @@
                 <tr class="hover:bg-surface-container-low transition-colors group">
                     <td class="px-6 py-4 text-center text-on-surface-variant">
                         {{ $alternatifs->firstItem() + $index }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        @if($warga->foto_ktp)
+                            <a href="{{ asset('storage/' . $warga->foto_ktp) }}" target="_blank" title="Lihat foto KTP">
+                                <img src="{{ asset('storage/' . $warga->foto_ktp) }}" alt="Foto KTP {{ $warga->nama }}"
+                                     class="w-12 h-12 object-cover rounded-lg border border-outline-variant mx-auto hover:scale-110 transition-transform">
+                            </a>
+                        @else
+                            <div class="w-12 h-12 flex items-center justify-center rounded-lg border border-dashed border-outline-variant mx-auto text-on-surface-variant" title="Belum ada foto">
+                                <span class="material-symbols-outlined text-lg">person</span>
+                            </div>
+                        @endif
                     </td>
                     <td class="px-6 py-4 font-mono text-xs">{{ $warga->nik }}</td>
                     <td class="px-6 py-4 font-semibold">{{ $warga->nama }}</td>
@@ -74,7 +124,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-10 text-center text-on-surface-variant">
+                    <td colspan="8" class="px-6 py-10 text-center text-on-surface-variant">
                         Belum ada data warga calon penerima.
                     </td>
                 </tr>

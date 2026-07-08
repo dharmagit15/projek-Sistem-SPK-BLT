@@ -20,6 +20,7 @@ class KriteriaController extends Controller
         return view('kriteria.create');
     }
 
+    
     // Memproses Penyimpanan Data Kriteria Baru
     public function store(Request $request)
     {
