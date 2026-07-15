@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alternatif;
-use App\Models\Kriteria; // Pastikan Model Kriteria di-import
+use App\Models\Kriteria; 
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -11,17 +11,24 @@ class LaporanController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil data dasar dari database
+        // 1. Ambil data dasar dan parameter query dinamis
+        $search = $request->input('search');
+        $status = $request->input('status'); // Mengambil filter status kelayakan (LAYAK/TIDAK LAYAK)
+        $perPage = (int) $request->input('per_page', 10); // Menentukan limit halaman dinamis
+
         $kriterias = Kriteria::all();
         $wargas = Alternatif::all();
 
         if ($wargas->isEmpty() || $kriterias->isEmpty()) {
             return view('laporan.index', [
-                'alternatifs' => new LengthAwarePaginator([], 0, 10),
+                'alternatifs' => new LengthAwarePaginator([], 0, $perPage),
                 'totalAlternatif' => 0,
                 'statusLayak' => 0,
                 'statusTidakLayak' => 0,
-                'rataRataSkor' => 0
+                'rataRataSkor' => 0,
+                'search' => $search,
+                'status' => $status,
+                'perPage' => $perPage
             ]);
         }
 
@@ -32,9 +39,7 @@ class LaporanController extends Controller
         // Cari Nilai Max/Min untuk pembagi Normalisasi
         $minMax = [];
         foreach ($kriterias as $k) {
-            // Ambil seluruh nilai alternatif untuk kriteria ini
             $nilaiWarga = $wargas->map(function($w) use ($k) {
-                // Sesuaikan 'detail_nilai_asli' atau relasi tabel nilai Anda di sini
                 return $w->detail_nilai_asli[$k->id] ?? 0; 
             })->toArray();
 
@@ -66,39 +71,60 @@ class LaporanController extends Controller
             // Tentukan status kelayakan berdasarkan threshold skor akhir
             $statusKelayakan = ($skorAkhir >= 0.65) ? 'LAYAK' : 'TIDAK LAYAK';
 
-            // === PERBAIKAN DI SINI: Tambahkan kolom yang dibutuhkan oleh view Blade ===
             $hasilRanking[] = [
                 'id'               => $warga->id,
                 'nik'              => $warga->nik,
                 'nama'             => $warga->nama,
-                'alamat'           => $warga->alamat,    // <-- Ambil data alamat asli
-                'no_telp'          => $warga->no_telp,   // <-- Ambil data nomor telepon asli
-                'created_at'       => $warga->created_at, // <-- Ambil data timestamp pendaftaran asli
+                'alamat'           => $warga->alamat,    
+                'no_telp'          => $warga->no_telp,   
+                'status'           => $warga->status, // Mengambil status verifikasi asli jika view membutuhkan
+                'created_at'       => $warga->created_at, 
                 'skor_akhir'       => $skorAkhir,
                 'status_kelayakan' => $statusKelayakan
             ];
         }
 
-        // Urutkan berdasarkan tanggal pendaftaran terbaru (Bukan berdasarkan skor SPK)
-        usort($hasilRanking, function ($a, $b) {
-            return strtotime($b['created_at']) <=> strtotime($a['created_at']);
-        });
-
         // ==========================================
-        // 3. HITUNG RINGKASAN STATISTIK DARI HASIL RIIL
+        // 3. PROSES FILTER & PENCARIAN DINAMIS (COLLECTION)
         // ==========================================
         $collectionRanking = collect($hasilRanking);
-        $totalAlternatif = $collectionRanking->count();
-        $statusLayak     = $collectionRanking->where('status_kelayakan', 'LAYAK')->count();
-        $statusTidakLayak = $collectionRanking->where('status_kelayakan', 'TIDAK LAYAK')->count();
-        $rataRataSkor    = $totalAlternatif > 0 ? $collectionRanking->avg('skor_akhir') : 0;
+
+        // Filter 1: Berdasarkan teks input Pencarian (NIK, Nama, Alamat)
+        if (!empty($search)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($search) {
+                return false !== stripos($item['nik'], $search) || 
+                       false !== stripos($item['nama'], $search) || 
+                       false !== stripos($item['alamat'], $search);
+            });
+        }
+
+        // Filter 2: Berdasarkan Status Kelayakan/Verifikasi
+        if (!empty($status)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
+                // Mencocokkan input status filter dengan hasil SPK atau status dari database
+                return $item['status_kelayakan'] === strtoupper($status) || 
+                       $item['status'] === $status;
+            });
+        }
+
+        // Urutkan berdasarkan tanggal pendaftaran terbaru
+        $sortedRanking = $collectionRanking->sortByDesc(function ($item) {
+            return strtotime($item['created_at']);
+        })->values()->all();
 
         // ==========================================
-        // 4. MANUAL PAGINATION UNTUK ARRAY HASIL SPK
+        // 4. HITUNG RINGKASAN STATISTIK DARI HASIL FILTER
+        // ==========================================
+        $totalAlternatif = count($sortedRanking);
+        $statusLayak     = collect($sortedRanking)->where('status_kelayakan', 'LAYAK')->count();
+        $statusTidakLayak = collect($sortedRanking)->where('status_kelayakan', 'TIDAK LAYAK')->count();
+        $rataRataSkor    = $totalAlternatif > 0 ? collect($sortedRanking)->avg('skor_akhir') : 0;
+
+        // ==========================================
+        // 5. MANUAL PAGINATION UNTUK ARRAY HASIL FILTER
         // ==========================================
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $currentItems = array_slice($hasilRanking, ($currentPage - 1) * $perPage, $perPage);
+        $currentItems = array_slice($sortedRanking, ($currentPage - 1) * $perPage, $perPage);
         
         $alternatifs = new LengthAwarePaginator(
             $currentItems, 
@@ -113,13 +139,19 @@ class LaporanController extends Controller
             'totalAlternatif', 
             'statusLayak', 
             'statusTidakLayak', 
-            'rataRataSkor'
+            'rataRataSkor',
+            'search',
+            'status',
+            'perPage'
         ));
     }
 
-    public function cetakPdf()
+    public function cetakPdf(Request $request)
     {
-        // Logika stream PDF rill Anda nantinya akan ditempatkan di sini
-        return "Fungsi cetak PDF akan mengeksekusi stream dokumen.";
+        // Parameter query dinamis juga bisa ditangkap di sini untuk menyaring data PDF nantinya
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        return "Fungsi cetak PDF akan mengeksekusi stream dokumen berdasarkan filter pencarian.";
     }
 }
