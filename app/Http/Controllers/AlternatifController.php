@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Alternatif;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; // <= INI YANG HARUS DITAMBAHKAN AGAR TIDAK MERAH
 
 class AlternatifController extends Controller
 {
@@ -84,9 +85,9 @@ class AlternatifController extends Controller
     {
         $warga = Alternatif::findOrFail($id);
 
-        // Hapus file foto KTP dari storage jika ada
-        if ($warga->foto_ktp && \Storage::disk('public')->exists($warga->foto_ktp)) {
-            \Storage::disk('public')->delete($warga->foto_ktp);
+        // Hapus file foto KTP dari storage jika ada (SUDAH BERSIH DARI BACKSLASH)
+        if ($warga->foto_ktp && Storage::disk('public')->exists($warga->foto_ktp)) {
+            Storage::disk('public')->delete($warga->foto_ktp);
         }
 
         $warga->delete();
@@ -126,10 +127,10 @@ class AlternatifController extends Controller
 
         $fotoPath = $warga->foto_ktp;
 
-        // Jika ada foto baru diunggah, hapus foto lama lalu simpan yang baru
+        // Jika ada foto baru diunggah, hapus foto lama lalu simpan yang baru (SUDAH BERSIH DARI BACKSLASH)
         if ($request->hasFile('foto_ktp')) {
-            if ($fotoPath && \Storage::disk('public')->exists($fotoPath)) {
-                \Storage::disk('public')->delete($fotoPath);
+            if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
+                Storage::disk('public')->delete($fotoPath);
             }
             $fotoPath = $request->file('foto_ktp')->store('foto-ktp', 'public');
         }
