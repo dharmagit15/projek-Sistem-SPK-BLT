@@ -124,7 +124,7 @@
             <div class="relative z-10 text-center space-y-stack-md max-w-md">
                 <div class="flex justify-center mb-8">
                     <div class="w-24 h-24 bg-on-primary rounded-full flex items-center justify-center shadow-xl p-4">
-                        <img alt="Garuda Pancasila" class="w-full h-full object-contain" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/National_emblem_of_Indonesia_Garuda_Pancasila.svg/1200px-National_emblem_of_Indonesia_Garuda_Pancasila.svg.png"/>
+                        <img alt="Garuda Pancasila" class="w-full h-full object-contain" src="{{ asset('images/OIP.webp') }}"/>
                     </div>
                 </div>
                 <h1 class="font-display-lg text-display-lg text-on-primary leading-tight">
@@ -143,7 +143,7 @@
             <div class="w-full max-w-sm space-y-8">
                 
                 <div class="lg:hidden text-center space-y-4 mb-8">
-                    <img alt="Logo" class="h-16 mx-auto" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/National_emblem_of_Indonesia_Garuda_Pancasila.svg/1200px-National_emblem_of_Indonesia_Garuda_Pancasila.svg.png"/>
+                    <img alt="Logo" class="h-16 mx-auto object-contain" src="{{ asset('images/OIP.webp') }}"/>
                     <h2 class="font-headline-md text-headline-md text-primary">SPK BLT</h2>
                     <p class="font-body-md text-body-md text-on-surface-variant">Sistem Pendukung Keputusan</p>
                 </div>

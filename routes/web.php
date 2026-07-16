@@ -72,6 +72,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 
+// ... route lainnya ...
+
+Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+// TAMBAHKAN DUA BARIS INI:
+Route::get('/admin/laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
+Route::get('/admin/laporan/pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
 // =========================================================================
 // 4. RUTE OTENTIKASI (Laravel Breeze: Login, Register, Logout, dll)
 // =========================================================================
