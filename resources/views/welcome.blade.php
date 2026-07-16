@@ -151,11 +151,9 @@
                     <a href="{{ route('login') }}" class="text-primary hover:underline font-label-md text-label-md px-2">
                         Masuk
                     </a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="bg-primary-container text-on-primary-container px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all">
-                            Daftar Akun
-                        </a>
-                    @endif
+                    <a href="{{ route('user.pendaftaran.create') }}" class="bg-primary-container text-on-primary-container px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all">
+                        Pendaftaran SPK BLT
+                    </a>
                 @endauth
             @endif
         </div>
@@ -176,6 +174,10 @@
                         <a class="bg-primary text-on-primary px-8 py-4 rounded-xl font-headline-sm text-headline-sm flex items-center gap-2 hover:shadow-lg transition-all" href="#cek-kelayakan">
                             Cek Status Penerimaan
                             <span class="material-symbols-outlined">arrow_forward</span>
+                        </a>
+                        <a class="bg-white border border-primary text-primary px-8 py-4 rounded-xl font-headline-sm text-headline-sm flex items-center gap-2 hover:shadow-lg transition-all" href="{{ route('user.pendaftaran.create') }}">
+                            Pendaftaran SPK BLT
+                            <span class="material-symbols-outlined">person_add</span>
                         </a>
                     </div>
                 </div>
