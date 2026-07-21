@@ -146,32 +146,37 @@
             <p class="text-xs text-on-primary/60">Decision Support System</p>
         </div>
     
-        <nav class="flex flex-col gap-2 flex-1">
-            <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->is('dashboard') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-            href="/dashboard">
-                <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
-            </a>
-        
-            <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->is('kriteria*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-            href="/kriteria">
-                <span class="material-symbols-outlined">list_alt</span><span>Kriteria</span>
-            </a>
-        
-            <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->is('alternatif*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-            href="/alternatif">
-                <span class="material-symbols-outlined">groups</span><span>Alternatif</span>
-            </a>
-        
-            <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->is('perhitungan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-            href="/perhitungan">
-                <span class="material-symbols-outlined">calculate</span><span>Perhitungan</span>
-            </a>
-        
-            <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->is('laporan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-            href="/laporan">
-                <span class="material-symbols-outlined">description</span><span>Laporan</span>
-            </a>
-        </nav>
+            <nav class="flex flex-col gap-2 flex-1">
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('admin.dashboard') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('admin.dashboard') }}">
+        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+    </a>
+
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('users*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('users.index') }}">
+        <span class="material-symbols-outlined">manage_accounts</span><span>Manajemen Pengguna</span>
+    </a>
+
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('kriteria*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('kriteria.index') }}">
+        <span class="material-symbols-outlined">list_alt</span><span>Kriteria</span>
+    </a>
+
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('alternatif*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('alternatif.index') }}">
+        <span class="material-symbols-outlined">groups</span><span>Kelola Warga</span>
+    </a>
+
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('perhitungan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('perhitungan.index') }}">
+        <span class="material-symbols-outlined">calculate</span><span>Perhitungan</span>
+    </a>
+
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('laporan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('laporan.index') }}">
+        <span class="material-symbols-outlined">description</span><span>Laporan</span>
+    </a>
+</nav>
 
         <div class="pt-4 border-t border-on-primary/10 mt-auto">
             <form method="POST" action="{{ route('logout') }}">
@@ -186,8 +191,7 @@
     <header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-6 z-40">
         <div class="flex items-center gap-4 w-1/3">
             <div class="relative w-full">
-                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-                <input class="w-full pl-10 pr-4 py-2 rounded-full border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm" placeholder="Cari data warga..." type="text"/>
+                
             </div>
         </div>
         <div class="flex items-center gap-4">

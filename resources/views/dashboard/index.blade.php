@@ -9,10 +9,10 @@
             <p class="text-sm text-slate-500 mt-1">Berikut adalah ringkasan data Sistem Pendukung Keputusan hari ini.</p>
         </div>
         <div>
-            <button class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
-                <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
-                Mulai Hitung SPK
-            </button>
+                <a href="http://127.0.0.1:8000/admin/kriteria" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
+        <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
+        Mulai Hitung SPK
+    </a>
         </div>
     </div>
 
@@ -44,18 +44,18 @@
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-slate-300 transition-all">
+        <a href="{{ route('users.index') }}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-blue-300 transition-all">
             <div class="space-y-2 z-10">
-                <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Selesai Dinilai</p>
-                <h3 class="text-3xl font-extrabold text-slate-800">85%</h3>
-                <div class="w-24 bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div class="bg-emerald-500 h-full rounded-full" style="width: 85%"></div>
-                </div>
+                <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pengguna</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">{{ $totalUser ?? 0 }}</h3>
+                <span class="inline-flex items-center text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                    Akun Terdaftar
+                </span>
             </div>
-            <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl transition-colors group-hover:bg-emerald-100">
-                <span class="material-symbols-outlined text-[28px] block">task_alt</span>
+            <div class="p-4 bg-purple-50 text-purple-600 rounded-xl transition-colors group-hover:bg-purple-100">
+                <span class="material-symbols-outlined text-[28px] block">manage_accounts</span>
             </div>
-        </div>
+        </a>
 
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-slate-300 transition-all">
             <div class="space-y-2 z-10">
