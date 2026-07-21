@@ -152,6 +152,11 @@
         <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
     </a>
 
+    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('users*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
+    href="{{ route('users.index') }}">
+        <span class="material-symbols-outlined">manage_accounts</span><span>Manajemen Pengguna</span>
+    </a>
+
     <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('kriteria*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
     href="{{ route('kriteria.index') }}">
         <span class="material-symbols-outlined">list_alt</span><span>Kriteria</span>

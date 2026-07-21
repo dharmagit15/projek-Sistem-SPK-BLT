@@ -8,6 +8,7 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\SawController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 
 
 // =========================================================================
@@ -43,6 +44,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Rute Dashboard Admin (URL: /admin/dashboard)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Kelola Pengguna System (URL: /admin/users)
+    Route::resource('users', UserController::class);
 
     // Kelola Alternatif (URL: /admin/alternatif)
     Route::resource('alternatif', AlternatifController::class);
