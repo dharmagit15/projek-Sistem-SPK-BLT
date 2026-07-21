@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('user.simulasi')" :active="request()->routeIs('user.simulasi')">
+                        {{ __('Simulasi') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('user.pendaftaran.index')" :active="request()->routeIs('user.pendaftaran.*')">
+                        {{ __('Pendaftaran Saya') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +75,12 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('user.simulasi')" :active="request()->routeIs('user.simulasi')">
+                {{ __('Simulasi') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('user.pendaftaran.index')" :active="request()->routeIs('user.pendaftaran.*')">
+                {{ __('Pendaftaran Saya') }}
             </x-responsive-nav-link>
         </div>
 

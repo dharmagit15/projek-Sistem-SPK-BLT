@@ -29,4 +29,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relasi 1-to-1 ke data pendaftaran Alternatif
+     */
+    public function alternatif()
+    {
+        return $this->hasOne(Alternatif::class);
+    }
 }
