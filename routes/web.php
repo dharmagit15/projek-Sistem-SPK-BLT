@@ -22,20 +22,17 @@ Route::get('/simulasi', function () {
     return view('simulasi');
 })->name('user.simulasi');
 
-// Rute pendaftaran SPK BLT untuk pengguna umum (tanpa daftar akun)
-Route::get('/pendaftaran-blt', [AlternatifController::class, 'publicCreate'])->name('user.pendaftaran.create');
-Route::post('/pendaftaran-blt', [AlternatifController::class, 'publicStore'])->name('user.pendaftaran.store');
-Route::get('/pendaftaran-blt/{id}', [AlternatifController::class, 'publicShow'])->name('user.pendaftaran.show');
-
-
 // =========================================================================
-// 2. RUTE KHUSUS PENGGUNA BIASA (Wajib Login, Bukan Admin)
+// 2. RUTE KHUSUS PENGGUNA BIASA (Wajib Login)
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
-    
-    // Tempatkan rute khusus user biasa di sini jika nanti ada. Contoh:
-    // Route::get('/riwayat', [UserHistoryController::class, 'index'])->name('user.riwayat');
-    
+
+    // Rute pendaftaran SPK BLT untuk pengguna (wajib login)
+    Route::get('/pendaftaran-blt/riwayat', [AlternatifController::class, 'publicIndex'])->name('user.pendaftaran.index');
+    Route::get('/pendaftaran-blt', [AlternatifController::class, 'publicCreate'])->name('user.pendaftaran.create');
+    Route::post('/pendaftaran-blt', [AlternatifController::class, 'publicStore'])->name('user.pendaftaran.store');
+    Route::get('/pendaftaran-blt/{id}', [AlternatifController::class, 'publicShow'])->name('user.pendaftaran.show');
+
 });
 
 

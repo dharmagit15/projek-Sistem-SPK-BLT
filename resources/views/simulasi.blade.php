@@ -31,18 +31,11 @@
             }
         }
     </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-surface text-on-surface font-[Inter] antialiased min-h-screen flex flex-col">
 
-    <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-white border-b border-outline-variant">
-        <div class="flex items-center gap-4">
-            <a href="/" class="flex items-center gap-2 text-primary hover:opacity-80 transition-all">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="font-semibold">Kembali ke Beranda</span>
-            </a>
-        </div>
-        <span class="font-bold text-primary hidden md:inline">Simulasi SPK Menggunakan Metode SAW</span>
-    </nav>
+    <x-public-header />
 
     <main class="flex-grow pt-24 pb-16 px-4">
         <div class="max-w-2xl mx-auto bg-white border border-outline-variant rounded-3xl shadow-sm overflow-hidden">
