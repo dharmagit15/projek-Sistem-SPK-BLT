@@ -22,6 +22,11 @@ Route::get('/simulasi', function () {
     return view('simulasi');
 })->name('user.simulasi');
 
+// Rute pendaftaran SPK BLT untuk pengguna umum (tanpa daftar akun)
+Route::get('/pendaftaran-blt', [AlternatifController::class, 'publicCreate'])->name('user.pendaftaran.create');
+Route::post('/pendaftaran-blt', [AlternatifController::class, 'publicStore'])->name('user.pendaftaran.store');
+Route::get('/pendaftaran-blt/{id}', [AlternatifController::class, 'publicShow'])->name('user.pendaftaran.show');
+
 
 // =========================================================================
 // 2. RUTE KHUSUS PENGGUNA BIASA (Wajib Login, Bukan Admin)
