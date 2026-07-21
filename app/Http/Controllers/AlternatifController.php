@@ -80,6 +80,57 @@ class AlternatifController extends Controller
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil ditambahkan!');
     }
 
+    // 3a. Menampilkan form pendaftaran SPK BLT publik
+    public function publicCreate()
+    {
+        return view('alternatif.public-create');
+    }
+
+    // 3b. Menyimpan pendaftaran spesial pengguna umum (hanya submit, tanpa edit)
+    public function publicStore(Request $request)
+    {
+        $request->validate([
+            'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik',
+            'nama'     => 'required|string|max:255',
+            'alamat'   => 'required|string',
+            'no_telp'  => 'required|string|max:20',
+            'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'nik.required' => 'NIK wajib diisi.',
+            'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
+            'nik.unique'   => 'NIK ini sudah terdaftar di sistem.',
+            'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+            'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
+            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
+        ]);
+
+        $fotoPath = null;
+        if ($request->hasFile('foto_ktp')) {
+            $fotoPath = $request->file('foto_ktp')->store('foto-ktp', 'public');
+        }
+
+        $alternatif = Alternatif::create([
+            'nik'      => $request->nik,
+            'nama'     => $request->nama,
+            'alamat'   => $request->alamat,
+            'no_telp'  => $request->no_telp,
+            'status'   => 'Review',
+            'foto_ktp' => $fotoPath,
+        ]);
+
+        return redirect()->route('user.pendaftaran.show', $alternatif->id)
+            ->with('success', 'Data pendaftaran SPK BLT berhasil dikirim.');
+    }
+
+    // 3c. Menampilkan ringkasan read-only hasil pengajuan user
+    public function publicShow($id)
+    {
+        $alternatif = Alternatif::findOrFail($id);
+
+        return view('alternatif.public-show', compact('alternatif'));
+    }
+
     // 4. Menghapus data alternatif warga
     public function destroy($id)
     {
