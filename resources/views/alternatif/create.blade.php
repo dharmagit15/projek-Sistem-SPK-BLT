@@ -76,6 +76,41 @@
                         <option value="Ditolak" {{ old('status') == 'Ditolak' ? 'selected' : '' }}>DITOLAK</option>
                     </select>
                 </div>
+
+                {{-- DYNAMIC CRITERIA INPUT SECTION FOR ADMIN --}}
+                @if(isset($kriterias) && $kriterias->count() > 0)
+                    <div class="border-t border-outline-variant/40 pt-5 mt-5">
+                        <div class="mb-4">
+                            <h3 class="text-base font-bold text-on-surface flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">fact_check</span>
+                                Parameter Nilai Kriteria Warga
+                            </h3>
+                            <p class="text-xs text-on-surface-variant mt-0.5">Isi nilai indikator kriteria warga langsung saat menambah data baru.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            @foreach($kriterias as $k)
+                                <div class="p-3 bg-surface-container-low border border-outline-variant/60 rounded-xl space-y-1.5">
+                                    <div class="flex items-center justify-between">
+                                        <label for="nilai_{{ $k->id }}" class="text-xs font-bold text-on-surface">
+                                            {{ $k->kode }} — {{ $k->nama }}
+                                        </label>
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase {{ strtolower($k->jenis) == 'benefit' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                            {{ $k->jenis }}
+                                        </span>
+                                    </div>
+                                    <input type="number" step="any" name="nilai[{{ $k->id }}]" id="nilai_{{ $k->id }}"
+                                           value="{{ old('nilai.' . $k->id) }}"
+                                           class="w-full px-3.5 py-2 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary bg-white @error('nilai.'.$k->id) border-error @enderror"
+                                           placeholder="Masukkan nilai angka...">
+                                    @error('nilai.'.$k->id)
+                                        <p class="text-error text-[11px] mt-0.5">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="flex items-center justify-end gap-3 mt-6 border-t border-outline-variant/30 pt-4 relative z-10">

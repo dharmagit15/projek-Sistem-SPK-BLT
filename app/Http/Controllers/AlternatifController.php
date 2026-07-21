@@ -37,31 +37,46 @@ class AlternatifController extends Controller
         return view('alternatif.index', compact('alternatifs', 'search', 'status', 'perPage'));
     }
 
-    // 2. Menampilkan formulir tambah data warga
+    // 2. Menampilkan formulir tambah data warga (beserta kriteria)
     public function create()
     {
-        return view('alternatif.create');
+        $kriterias = Kriteria::orderBy('id', 'asc')->get();
+
+        return view('alternatif.create', compact('kriterias'));
     }
 
-    // 3. Menyimpan data warga baru ke database
+    // 3. Menyimpan data warga baru ke database beserta nilai kriterianya
     public function store(Request $request)
     {
-        $request->validate([
+        $kriterias = Kriteria::all();
+
+        $rules = [
             'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik',
             'nama'     => 'required|string|max:255',
             'alamat'   => 'required|string',
             'no_telp'  => 'required|string|max:20',
             'status'   => 'required|in:Terverifikasi,Review,Ditolak',
             'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'nik.required' => 'NIK wajib diisi.',
-            'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
-            'nik.unique'   => 'NIK ini sudah terdaftar di sistem.',
-            'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+        ];
+
+        $messages = [
+            'nik.required'   => 'NIK wajib diisi.',
+            'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
+            'nik.unique'     => 'NIK ini sudah terdaftar di sistem.',
+            'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',
             'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
-            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
-            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
-        ]);
+            'foto_ktp.mimes' => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'   => 'Ukuran foto KTP maksimal 2MB.',
+        ];
+
+        if ($kriterias->count() > 0) {
+            $rules['nilai'] = 'nullable|array';
+            foreach ($kriterias as $k) {
+                $rules["nilai.{$k->id}"] = 'nullable|numeric';
+            }
+        }
+
+        $request->validate($rules, $messages);
 
         // Simpan file foto KTP jika diunggah
         $fotoPath = null;
@@ -69,7 +84,7 @@ class AlternatifController extends Controller
             $fotoPath = $request->file('foto_ktp')->store('foto-ktp', 'public');
         }
 
-        Alternatif::create([
+        $alternatif = Alternatif::create([
             'nik'      => $request->nik,
             'nama'     => $request->nama,
             'alamat'   => $request->alamat,
@@ -78,7 +93,17 @@ class AlternatifController extends Controller
             'foto_ktp' => $fotoPath,
         ]);
 
-        return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil ditambahkan!');
+        if ($request->has('nilai') && is_array($request->nilai)) {
+            $syncData = [];
+            foreach ($request->nilai as $kriteriaId => $nilaiVal) {
+                if ($nilaiVal !== null && $nilaiVal !== '') {
+                    $syncData[$kriteriaId] = ['nilai' => (float)$nilaiVal];
+                }
+            }
+            $alternatif->kriterias()->sync($syncData);
+        }
+
+        return redirect()->route('alternatif.index')->with('success', 'Data warga & nilai kriteria berhasil ditambahkan!');
     }
 
     // 3a. Menampilkan form pendaftaran SPK BLT bagi pengguna terautentikasi (1 akun = 1 pendaftaran)
@@ -201,39 +226,52 @@ class AlternatifController extends Controller
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil dihapus.');
     }
 
-    // 5. Menampilkan halaman form edit beserta data warga yang dipilih
+    // 5. Menampilkan halaman form edit beserta data warga & nilai kriteria
     public function edit($id)
     {
-        $warga = Alternatif::findOrFail($id); 
+        $warga = Alternatif::with('kriterias')->findOrFail($id); 
+        $kriterias = Kriteria::orderBy('id', 'asc')->get();
+        $nilaiWarga = $warga->kriterias->pluck('pivot.nilai', 'id')->toArray();
         
-        return view('alternatif.edit', compact('warga'));
+        return view('alternatif.edit', compact('warga', 'kriterias', 'nilaiWarga'));
     }
 
-    // 6. Menyimpan perubahan data warga ke database
+    // 6. Menyimpan perubahan data warga & nilai kriteria ke database
     public function update(Request $request, $id)
     {
         $warga = Alternatif::findOrFail($id);
+        $kriterias = Kriteria::all();
 
-        $request->validate([
+        $rules = [
             'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik,' . $warga->id,
             'nama'     => 'required|string|max:255',
             'alamat'   => 'required|string',
             'no_telp'  => 'required|string|max:20',
             'status'   => 'required|in:Terverifikasi,Review,Ditolak',
             'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'nik.required' => 'NIK wajib diisi.',
-            'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
-            'nik.unique'   => 'NIK ini sudah digunakan oleh warga lain.',
-            'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+        ];
+
+        $messages = [
+            'nik.required'   => 'NIK wajib diisi.',
+            'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
+            'nik.unique'     => 'NIK ini sudah digunakan oleh warga lain.',
+            'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',
             'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
-            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
-            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
-        ]);
+            'foto_ktp.mimes' => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'   => 'Ukuran foto KTP maksimal 2MB.',
+        ];
+
+        if ($kriterias->count() > 0) {
+            $rules['nilai'] = 'nullable|array';
+            foreach ($kriterias as $k) {
+                $rules["nilai.{$k->id}"] = 'nullable|numeric';
+            }
+        }
+
+        $request->validate($rules, $messages);
 
         $fotoPath = $warga->foto_ktp;
 
-        // Jika ada foto baru diunggah, hapus foto lama lalu simpan yang baru (SUDAH BERSIH DARI BACKSLASH)
         if ($request->hasFile('foto_ktp')) {
             if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
@@ -250,6 +288,16 @@ class AlternatifController extends Controller
             'foto_ktp' => $fotoPath,
         ]);
 
-        return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil diperbarui!');
+        if ($request->has('nilai') && is_array($request->nilai)) {
+            $syncData = [];
+            foreach ($request->nilai as $kriteriaId => $nilaiVal) {
+                if ($nilaiVal !== null && $nilaiVal !== '') {
+                    $syncData[$kriteriaId] = ['nilai' => (float)$nilaiVal];
+                }
+            }
+            $warga->kriterias()->sync($syncData);
+        }
+
+        return redirect()->route('alternatif.index')->with('success', 'Data warga & nilai kriteria berhasil diperbarui!');
     }
 }
