@@ -19,7 +19,10 @@ class DashboardController extends Controller
         // 2. Mengambil semua data kriteria untuk ditampilkan di tabel dashboard
         $daftarKriteria = Kriteria::all();
 
-        // 3. Mengirimkan data ke view dashboard/index.blade.php
-        return view('dashboard.index', compact('totalKriteria', 'totalAlternatif', 'totalUser', 'daftarKriteria'));
+        // 3. Mengambil data alternatif terbaru untuk log aktivitas
+        $recentAlternatifs = Alternatif::latest()->take(4)->get();
+
+        // 4. Mengirimkan data ke view dashboard/index.blade.php
+        return view('dashboard.index', compact('totalKriteria', 'totalAlternatif', 'totalUser', 'daftarKriteria', 'recentAlternatifs'));
     }
 }

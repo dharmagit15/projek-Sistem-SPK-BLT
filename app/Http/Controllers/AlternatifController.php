@@ -44,7 +44,6 @@ class AlternatifController extends Controller
 
         return view('alternatif.create', compact('kriterias'));
     }
-
     // 3. Menyimpan data warga baru ke database beserta nilai kriterianya
     public function store(Request $request)
     {
@@ -61,6 +60,7 @@ class AlternatifController extends Controller
 
         $messages = [
             'nik.required'   => 'NIK wajib diisi.',
+            'nik.numeric'    => 'NIK harus berupa angka.',
             'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
             'nik.unique'     => 'NIK ini sudah terdaftar di sistem.',
             'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',
@@ -144,6 +144,7 @@ class AlternatifController extends Controller
 
         $messages = [
             'nik.required'   => 'NIK wajib diisi.',
+            'nik.numeric'    => 'NIK harus berupa angka.',
             'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
             'nik.unique'     => 'NIK ini sudah terdaftar di sistem.',
             'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',
@@ -253,6 +254,7 @@ class AlternatifController extends Controller
 
         $messages = [
             'nik.required'   => 'NIK wajib diisi.',
+            'nik.numeric'    => 'NIK harus berupa angka.',
             'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
             'nik.unique'     => 'NIK ini sudah digunakan oleh warga lain.',
             'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',

@@ -148,10 +148,192 @@ class LaporanController extends Controller
 
     public function cetakPdf(Request $request)
     {
-        // Parameter query dinamis juga bisa ditangkap di sini untuk menyaring data PDF nantinya
         $search = $request->input('search');
         $status = $request->input('status');
 
-        return "Fungsi cetak PDF akan mengeksekusi stream dokumen berdasarkan filter pencarian.";
+        $kriterias = Kriteria::all();
+        $wargas = Alternatif::all();
+
+        if ($wargas->isEmpty() || $kriterias->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data untuk dicetak.');
+        }
+
+        // Cari Nilai Max/Min untuk pembagi Normalisasi
+        $minMax = [];
+        foreach ($kriterias as $k) {
+            $nilaiWarga = $wargas->map(function($w) use ($k) {
+                return $w->detail_nilai_asli[$k->id] ?? 0; 
+            })->toArray();
+
+            $minMax[$k->id] = [
+                'max' => !empty($nilaiWarga) ? max($nilaiWarga) : 1,
+                'min' => !empty($nilaiWarga) ? min($nilaiWarga) : 1,
+            ];
+        }
+
+        // Hitung Skor Akhir Per Alternatif
+        $hasilRanking = [];
+        foreach ($wargas as $warga) {
+            $skorAkhir = 0;
+            foreach ($kriterias as $k) {
+                $nilaiAsli = $warga->detail_nilai_asli[$k->id] ?? 0;
+                $bobot = $k->bobot / 100;
+
+                if (trim(strtolower($k->jenis)) == 'benefit') {
+                    $r = $minMax[$k->id]['max'] > 0 ? ($nilaiAsli / $minMax[$k->id]['max']) : 0;
+                } else {
+                    $r = $nilaiAsli > 0 ? ($minMax[$k->id]['min'] / $nilaiAsli) : 0;
+                }
+                $skorAkhir += ($r * $bobot);
+            }
+            $statusKelayakan = ($skorAkhir >= 0.65) ? 'LAYAK' : 'TIDAK LAYAK';
+
+            $hasilRanking[] = [
+                'nik'              => $warga->nik,
+                'nama'             => $warga->nama,
+                'alamat'           => $warga->alamat,    
+                'no_telp'          => $warga->no_telp,   
+                'status'           => $warga->status, 
+                'created_at'       => $warga->created_at, 
+                'skor_akhir'       => $skorAkhir,
+                'status_kelayakan' => $statusKelayakan
+            ];
+        }
+
+        $collectionRanking = collect($hasilRanking);
+
+        if (!empty($search)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($search) {
+                return false !== stripos($item['nik'], $search) || 
+                       false !== stripos($item['nama'], $search) || 
+                       false !== stripos($item['alamat'], $search);
+            });
+        }
+
+        if (!empty($status)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
+                return $item['status_kelayakan'] === strtoupper($status) || 
+                       $item['status'] === $status;
+            });
+        }
+
+        // Urutkan berdasarkan skor tertinggi ke terendah
+        $alternatifs = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
+
+        return view('laporan.print', compact('alternatifs'));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $kriterias = Kriteria::all();
+        $wargas = Alternatif::all();
+
+        if ($wargas->isEmpty() || $kriterias->isEmpty()) {
+            return redirect()->back()->with('error', 'Tidak ada data untuk diexport.');
+        }
+
+        $minMax = [];
+        foreach ($kriterias as $k) {
+            $nilaiWarga = $wargas->map(function($w) use ($k) {
+                return $w->detail_nilai_asli[$k->id] ?? 0; 
+            })->toArray();
+
+            $minMax[$k->id] = [
+                'max' => !empty($nilaiWarga) ? max($nilaiWarga) : 1,
+                'min' => !empty($nilaiWarga) ? min($nilaiWarga) : 1,
+            ];
+        }
+
+        $hasilRanking = [];
+        foreach ($wargas as $warga) {
+            $skorAkhir = 0;
+            foreach ($kriterias as $k) {
+                $nilaiAsli = $warga->detail_nilai_asli[$k->id] ?? 0;
+                $bobot = $k->bobot / 100;
+
+                if (trim(strtolower($k->jenis)) == 'benefit') {
+                    $r = $minMax[$k->id]['max'] > 0 ? ($nilaiAsli / $minMax[$k->id]['max']) : 0;
+                } else {
+                    $r = $nilaiAsli > 0 ? ($minMax[$k->id]['min'] / $nilaiAsli) : 0;
+                }
+                $skorAkhir += ($r * $bobot);
+            }
+            $statusKelayakan = ($skorAkhir >= 0.65) ? 'LAYAK' : 'TIDAK LAYAK';
+
+            $hasilRanking[] = [
+                'nik'              => $warga->nik,
+                'nama'             => $warga->nama,
+                'alamat'           => $warga->alamat,    
+                'no_telp'          => $warga->no_telp,   
+                'status'           => $warga->status, 
+                'created_at'       => $warga->created_at, 
+                'skor_akhir'       => $skorAkhir,
+                'status_kelayakan' => $statusKelayakan
+            ];
+        }
+
+        $collectionRanking = collect($hasilRanking);
+
+        if (!empty($search)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($search) {
+                return false !== stripos($item['nik'], $search) || 
+                       false !== stripos($item['nama'], $search) || 
+                       false !== stripos($item['alamat'], $search);
+            });
+        }
+
+        if (!empty($status)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
+                return $item['status_kelayakan'] === strtoupper($status) || 
+                       $item['status'] === $status;
+            });
+        }
+
+        $alternatifs = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
+
+        $fileName = 'laporan_penerima_blt_' . date('Y-m-d') . '.xls';
+        
+        header("Content-Type: application/vnd.ms-excel");
+        header("Content-Disposition: attachment; filename=\"$fileName\"");
+        
+        echo "<table border='1'>";
+        echo "<thead>
+                <tr>
+                    <th colspan='8' style='font-size:16px; font-weight:bold; text-align:center; padding:10px 0;'>LAPORAN HASIL SELEKSI PENERIMA BANTUAN DIRECT TUNAI (BLT)</th>
+                </tr>
+                <tr>
+                    <th colspan='8' style='font-size:12px; text-align:center; padding-bottom:10px;'>Tahun Anggaran " . date('Y') . "</th>
+                </tr>
+                <tr style='background-color:#f2f2f2; font-weight:bold;'>
+                    <th>No</th>
+                    <th>NIK</th>
+                    <th>Nama Lengkap</th>
+                    <th>Alamat</th>
+                    <th>No. Telp</th>
+                    <th>Status Verifikasi</th>
+                    <th>Skor Akhir (V)</th>
+                    <th>Kelayakan SPK</th>
+                </tr>
+              </thead>";
+        echo "<tbody>";
+        foreach ($alternatifs as $index => $row) {
+            $no = $index + 1;
+            echo "<tr>";
+            echo "<td>$no</td>";
+            echo "<td>'{$row['nik']}</td>";
+            echo "<td>{$row['nama']}</td>";
+            echo "<td>{$row['alamat']}</td>";
+            echo "<td>{$row['no_telp']}</td>";
+            echo "<td>{$row['status']}</td>";
+            echo "<td>" . number_format($row['skor_akhir'], 4, ',', '.') . "</td>";
+            echo "<td>{$row['status_kelayakan']}</td>";
+            echo "</tr>";
+        }
+        echo "</tbody>";
+        echo "</table>";
+        exit;
     }
 }

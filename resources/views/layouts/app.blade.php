@@ -146,42 +146,43 @@
             <p class="text-xs text-on-primary/60">Decision Support System</p>
         </div>
     
-            <nav class="flex flex-col gap-2 flex-1">
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('admin.dashboard') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('admin.dashboard') }}">
-        <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
-    </a>
+        <nav class="flex flex-col gap-2 flex-1">
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('admin.dashboard') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('admin.dashboard') }}">
+                <span class="material-symbols-outlined">dashboard</span><span>Dashboard</span>
+            </a>
 
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('users*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('users.index') }}">
-        <span class="material-symbols-outlined">manage_accounts</span><span>Manajemen Pengguna</span>
-    </a>
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('users*') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('users.index') }}">
+                <span class="material-symbols-outlined">manage_accounts</span><span>Manajemen Pengguna</span>
+            </a>
 
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('kriteria*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('kriteria.index') }}">
-        <span class="material-symbols-outlined">list_alt</span><span>Kriteria</span>
-    </a>
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('kriteria*') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('kriteria.index') }}">
+                <span class="material-symbols-outlined">list_alt</span><span>Kriteria</span>
+            </a>
 
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('alternatif*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('alternatif.index') }}">
-        <span class="material-symbols-outlined">groups</span><span>Kelola Warga</span>
-    </a>
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('alternatif*') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('alternatif.index') }}">
+                <span class="material-symbols-outlined">groups</span><span>Kelola Warga</span>
+            </a>
 
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('perhitungan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('perhitungan.index') }}">
-        <span class="material-symbols-outlined">calculate</span><span>Perhitungan</span>
-    </a>
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('perhitungan*') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('perhitungan.index') }}">
+                <span class="material-symbols-outlined">calculate</span><span>Perhitungan</span>
+            </a>
 
-    <a class="flex items-center gap-3 p-3 transition-colors rounded-xl {{ request()->routeIs('laporan*') ? 'bg-on-primary-fixed-variant text-on-primary' : 'text-on-primary/70 hover:text-on-primary hover:bg-primary-container/20' }}"
-    href="{{ route('laporan.index') }}">
-        <span class="material-symbols-outlined">description</span><span>Laporan</span>
-    </a>
-</nav>
+            <a class="flex items-center gap-3 p-3 transition-all rounded-xl {{ request()->routeIs('laporan*') ? 'bg-on-primary-fixed-variant text-on-primary shadow-sm' : 'text-on-primary/70 hover:text-on-primary hover:bg-white/10 transition-all' }}"
+            href="{{ route('laporan.index') }}">
+                <span class="material-symbols-outlined">description</span><span>Laporan</span>
+            </a>
+        </nav>
 
         <div class="pt-4 border-t border-on-primary/10 mt-auto">
             <form method="POST" action="{{ route('logout') }}">
-                @csrf <button type="submit" class="w-full flex items-center gap-3 p-3 text-red-300 hover:text-red-100 hover:bg-red-500/20 transition-all rounded-xl font-medium group">
-                    <span class="material-symbols-outlined text-red-400 group-hover:text-red-300 transition-colors">logout</span>
+                @csrf 
+                <button type="submit" class="w-full flex items-center gap-3 p-3 text-red-300 hover:text-white hover:bg-red-600/20 transition-all rounded-xl font-medium group">
+                    <span class="material-symbols-outlined text-red-400 group-hover:text-red-200 transition-colors">logout</span>
                     <span>Keluar Aplikasi</span>
                 </button>
             </form>
@@ -195,11 +196,21 @@
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high text-on-surface-variant">
+            <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors">
                 <span class="material-symbols-outlined">notifications</span>
             </button>
             <div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
-            <span class="text-sm font-semibold text-on-surface">{{ Auth::user()->name ?? 'Admin Console' }}</span>
+            
+            <!-- User Profile & Avatar Dropdown -->
+            <div class="flex items-center gap-3">
+                <div class="flex flex-col items-end">
+                    <span class="text-sm font-semibold text-on-surface leading-none">{{ Auth::user()->name ?? 'Admin Console' }}</span>
+                    <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100/50 mt-1 leading-none">Admin</span>
+                </div>
+                <div class="bg-blue-600 text-white font-bold rounded-full w-9 h-9 flex items-center justify-center shadow-sm select-none border border-blue-500/30">
+                    {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                </div>
+            </div>
         </div>
     </header>
 
