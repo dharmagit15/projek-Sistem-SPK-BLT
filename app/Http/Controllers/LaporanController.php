@@ -6,6 +6,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria; 
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
@@ -17,7 +18,7 @@ class LaporanController extends Controller
         $perPage = (int) $request->input('per_page', 10); // Menentukan limit halaman dinamis
 
         $kriterias = Kriteria::all();
-        $wargas = Alternatif::all();
+        $wargas = Alternatif::with('kriterias')->get();
 
         if ($wargas->isEmpty() || $kriterias->isEmpty()) {
             return view('laporan.index', [
@@ -40,7 +41,8 @@ class LaporanController extends Controller
         $minMax = [];
         foreach ($kriterias as $k) {
             $nilaiWarga = $wargas->map(function($w) use ($k) {
-                return $w->detail_nilai_asli[$k->id] ?? 0; 
+                $pivot = $w->kriterias->where('id', $k->id)->first();
+                return $pivot ? (float)$pivot->pivot->nilai : 0.0;
             })->toArray();
 
             $minMax[$k->id] = [
@@ -55,8 +57,9 @@ class LaporanController extends Controller
             $skorAkhir = 0;
 
             foreach ($kriterias as $k) {
-                $nilaiAsli = $warga->detail_nilai_asli[$k->id] ?? 0;
-                $bobot = $k->bobot / 100; 
+                $pivot = $warga->kriterias->where('id', $k->id)->first();
+                $nilaiAsli = $pivot ? (float)$pivot->pivot->nilai : 0.0;
+                $bobot = (float)$k->bobot; 
 
                 // Rumus Normalisasi SAW (Benefit / Cost)
                 if (trim(strtolower($k->jenis)) == 'benefit') {
@@ -107,24 +110,28 @@ class LaporanController extends Controller
             });
         }
 
-        // Urutkan berdasarkan tanggal pendaftaran terbaru
-        $sortedRanking = $collectionRanking->sortByDesc(function ($item) {
-            return strtotime($item['created_at']);
-        })->values()->all();
+        // Urutkan berdasarkan Skor Akhir tertinggi (Ranking)
+        $sortedRanking = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
 
         // ==========================================
         // 4. HITUNG RINGKASAN STATISTIK DARI HASIL FILTER
         // ==========================================
         $totalAlternatif = count($sortedRanking);
-        $statusLayak     = collect($sortedRanking)->where('status_kelayakan', 'LAYAK')->count();
-        $statusTidakLayak = collect($sortedRanking)->where('status_kelayakan', 'TIDAK LAYAK')->count();
-        $rataRataSkor    = $totalAlternatif > 0 ? collect($sortedRanking)->avg('skor_akhir') : 0;
+        $statusTerverifikasi = collect($sortedRanking)->where('status', 'Terverifikasi')->count();
+        $statusReview        = collect($sortedRanking)->where('status', 'Review')->count();
+        $statusDitolak       = collect($sortedRanking)->where('status', 'Ditolak')->count();
+        $rataRataSkor        = $totalAlternatif > 0 ? collect($sortedRanking)->avg('skor_akhir') : 0;
 
         // ==========================================
         // 5. MANUAL PAGINATION UNTUK ARRAY HASIL FILTER
         // ==========================================
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = array_slice($sortedRanking, ($currentPage - 1) * $perPage, $perPage);
+        
+        // Cast array items to objects to prevent "Cannot access property on array" error in Blade view
+        $currentItems = array_map(function ($item) {
+            return (object) $item;
+        }, $currentItems);
         
         $alternatifs = new LengthAwarePaginator(
             $currentItems, 
@@ -137,8 +144,9 @@ class LaporanController extends Controller
         return view('laporan.index', compact(
             'alternatifs', 
             'totalAlternatif', 
-            'statusLayak', 
-            'statusTidakLayak', 
+            'statusTerverifikasi', 
+            'statusReview', 
+            'statusDitolak', 
             'rataRataSkor',
             'search',
             'status',
@@ -148,10 +156,91 @@ class LaporanController extends Controller
 
     public function cetakPdf(Request $request)
     {
-        // Parameter query dinamis juga bisa ditangkap di sini untuk menyaring data PDF nantinya
         $search = $request->input('search');
         $status = $request->input('status');
 
-        return "Fungsi cetak PDF akan mengeksekusi stream dokumen berdasarkan filter pencarian.";
+        $kriterias = Kriteria::all();
+        $wargas = Alternatif::with('kriterias')->get();
+
+        if ($wargas->isEmpty() || $kriterias->isEmpty()) {
+            $pdf = Pdf::loadView('laporan.cetak', [
+                'alternatifs' => []
+            ]);
+            return $pdf->stream('laporan-spk-blt.pdf');
+        }
+
+        // Cari Nilai Max/Min untuk pembagi Normalisasi
+        $minMax = [];
+        foreach ($kriterias as $k) {
+            $nilaiWarga = $wargas->map(function($w) use ($k) {
+                $pivot = $w->kriterias->where('id', $k->id)->first();
+                return $pivot ? (float)$pivot->pivot->nilai : 0.0;
+            })->toArray();
+
+            $minMax[$k->id] = [
+                'max' => !empty($nilaiWarga) ? max($nilaiWarga) : 1,
+                'min' => !empty($nilaiWarga) ? min($nilaiWarga) : 1,
+            ];
+        }
+
+        // Hitung Skor Akhir Per Alternatif
+        $hasilRanking = [];
+        foreach ($wargas as $warga) {
+            $skorAkhir = 0;
+
+            foreach ($kriterias as $k) {
+                $pivot = $warga->kriterias->where('id', $k->id)->first();
+                $nilaiAsli = $pivot ? (float)$pivot->pivot->nilai : 0.0;
+                $bobot = (float)$k->bobot; 
+
+                // Rumus Normalisasi SAW (Benefit / Cost)
+                if (trim(strtolower($k->jenis)) == 'benefit') {
+                    $r = $minMax[$k->id]['max'] > 0 ? ($nilaiAsli / $minMax[$k->id]['max']) : 0;
+                } else { // Cost
+                    $r = $nilaiAsli > 0 ? ($minMax[$k->id]['min'] / $nilaiAsli) : 0;
+                }
+
+                $skorAkhir += ($r * $bobot);
+            }
+
+            $hasilRanking[] = [
+                'id'         => $warga->id,
+                'nik'        => $warga->nik,
+                'nama'       => $warga->nama,
+                'alamat'     => $warga->alamat,    
+                'status'     => $warga->status, 
+                'created_at' => $warga->created_at, 
+                'skor_akhir' => $skorAkhir,
+            ];
+        }
+
+        $collectionRanking = collect($hasilRanking);
+
+        // Filter 1: Berdasarkan teks input Pencarian (NIK, Nama, Alamat)
+        if (!empty($search)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($search) {
+                return false !== stripos($item['nik'], $search) || 
+                       false !== stripos($item['nama'], $search) || 
+                       false !== stripos($item['alamat'], $search);
+            });
+        }
+
+        // Filter 2: Berdasarkan Status
+        if (!empty($status)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
+                return $item['status'] === $status;
+            });
+        }
+
+        // Urutkan berdasarkan Skor Akhir tertinggi (Ranking)
+        $sortedRanking = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
+
+        // Cast to objects for easy view rendering
+        $alternatifs = array_map(function ($item) {
+            return (object) $item;
+        }, $sortedRanking);
+
+        $pdf = Pdf::loadView('laporan.cetak', compact('alternatifs'));
+        return $pdf->stream('laporan-spk-blt.pdf');
     }
 }

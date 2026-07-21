@@ -18,10 +18,6 @@
         </div>
         
         <div class="flex flex-wrap gap-3 relative z-10">
-            <button class="group flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-slate-200 text-slate-600 font-semibold rounded-xl hover:border-emerald-500 hover:text-emerald-600 transition-all duration-300 shadow-sm text-sm">
-                <span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform">file_download</span>
-                Export Excel
-            </button>
             <a href="{{ route('laporan.pdf') }}" target="_blank" class="group flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 text-sm overflow-hidden relative">
                 <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
                 <span class="material-symbols-outlined text-[20px] relative z-10">print</span>
@@ -31,7 +27,7 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <!-- Total Card -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
             <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-300">
@@ -49,7 +45,7 @@
             </div>
         </div>
 
-        <!-- Status Layak Card -->
+        <!-- Status Terverifikasi Card -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
             <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-300">
                 <span class="material-symbols-outlined text-7xl text-emerald-600">verified_user</span>
@@ -58,18 +54,38 @@
                 <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-4 border border-emerald-100">
                     <span class="material-symbols-outlined">verified_user</span>
                 </div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Status Layak</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Terverifikasi</p>
                 <div class="flex items-end gap-3">
-                    <h4 class="text-3xl font-bold text-slate-800">{{ number_format($statusLayak) }}</h4>
+                    <h4 class="text-3xl font-bold text-slate-800">{{ number_format($statusTerverifikasi) }}</h4>
                     <div class="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs font-semibold border border-emerald-100 mb-1">
                         <span class="material-symbols-outlined text-[14px]">trending_up</span>
-                        {{ $totalAlternatif > 0 ? round(($statusLayak / $totalAlternatif) * 100, 1) : 0 }}%
+                        {{ $totalAlternatif > 0 ? round(($statusTerverifikasi / $totalAlternatif) * 100, 1) : 0 }}%
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Status Tidak Layak Card -->
+        <!-- Status Review Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
+            <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-300">
+                <span class="material-symbols-outlined text-7xl text-amber-600">hourglass_empty</span>
+            </div>
+            <div class="relative z-10">
+                <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-4 border border-amber-100">
+                    <span class="material-symbols-outlined">hourglass_empty</span>
+                </div>
+                <p class="text-sm font-medium text-slate-500 mb-1">Review</p>
+                <div class="flex items-end gap-3">
+                    <h4 class="text-3xl font-bold text-slate-800">{{ number_format($statusReview) }}</h4>
+                    <div class="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-0.5 rounded text-xs font-semibold border border-amber-100 mb-1">
+                        <span class="material-symbols-outlined text-[14px]">history</span>
+                        {{ $totalAlternatif > 0 ? round(($statusReview / $totalAlternatif) * 100, 1) : 0 }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Ditolak Card -->
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden group hover:shadow-md transition-shadow hover:-translate-y-1 duration-300">
             <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity group-hover:scale-110 duration-300">
                 <span class="material-symbols-outlined text-7xl text-rose-600">gpp_bad</span>
@@ -78,12 +94,12 @@
                 <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-4 border border-rose-100">
                     <span class="material-symbols-outlined">gpp_bad</span>
                 </div>
-                <p class="text-sm font-medium text-slate-500 mb-1">Tidak Layak</p>
+                <p class="text-sm font-medium text-slate-500 mb-1">Ditolak</p>
                 <div class="flex items-end gap-3">
-                    <h4 class="text-3xl font-bold text-slate-800">{{ number_format($statusTidakLayak) }}</h4>
+                    <h4 class="text-3xl font-bold text-slate-800">{{ number_format($statusDitolak) }}</h4>
                     <div class="flex items-center gap-1 text-rose-600 bg-rose-50 px-2 py-0.5 rounded text-xs font-semibold border border-rose-100 mb-1">
                         <span class="material-symbols-outlined text-[14px]">trending_down</span>
-                        {{ $totalAlternatif > 0 ? round(($statusTidakLayak / $totalAlternatif) * 100, 1) : 0 }}%
+                        {{ $totalAlternatif > 0 ? round(($statusDitolak / $totalAlternatif) * 100, 1) : 0 }}%
                     </div>
                 </div>
             </div>
@@ -132,7 +148,7 @@
                         <th class="px-6 py-4 w-24 text-center">Peringkat</th>
                         <th class="px-6 py-4">Data Warga</th>
                         <th class="px-6 py-4 w-72">Skor Preferensi</th>
-                        <th class="px-6 py-4 text-center">Status Kelayakan</th>
+                        <th class="px-6 py-4 text-center">Status Warga</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
@@ -176,22 +192,27 @@
                                     <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{{ round($warga->skor_akhir * 100) }}%</span>
                                 </div>
                                 <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
-                                    <div class="h-full {{ $warga->status_kelayakan == 'LAYAK' ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-rose-400 to-rose-500' }} rounded-full relative overflow-hidden transition-all duration-1000" style="width: {{ $warga->skor_akhir * 100 }}%">
+                                    <div class="h-full {{ $warga->status == 'Terverifikasi' ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : ($warga->status == 'Review' ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-gradient-to-r from-rose-400 to-rose-500') }} rounded-full relative overflow-hidden transition-all duration-1000" style="width: {{ $warga->skor_akhir * 100 }}%">
                                         <div class="absolute top-0 right-0 bottom-0 w-8 bg-white/20 blur-[2px] transform skew-x-[-20deg] translate-x-4"></div>
                                     </div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-center">
-                            @if($warga->status_kelayakan == 'LAYAK')
+                            @if($warga->status == 'Terverifikasi')
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full shadow-sm">
                                     <span class="material-symbols-outlined text-[16px]">check_circle</span>
-                                    <span class="text-xs font-bold tracking-wide">LAYAK</span>
+                                    <span class="text-xs font-bold tracking-wide">TERVERIFIKASI</span>
+                                </div>
+                            @elseif($warga->status == 'Review')
+                                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-full shadow-sm">
+                                    <span class="material-symbols-outlined text-[16px]">hourglass_empty</span>
+                                    <span class="text-xs font-bold tracking-wide">REVIEW</span>
                                 </div>
                             @else
                                 <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-full shadow-sm">
                                     <span class="material-symbols-outlined text-[16px]">cancel</span>
-                                    <span class="text-xs font-bold tracking-wide">TIDAK LAYAK</span>
+                                    <span class="text-xs font-bold tracking-wide">DITOLAK</span>
                                 </div>
                             @endif
                         </td>
