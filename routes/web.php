@@ -67,9 +67,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Laporan (URL: /admin/laporan)
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
-    Route::get('/laporan/pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
+    Route::get('/laporan/cetak-pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
+
+    // BARIS SIMULASI YANG SALAH TEMPAT DI SINI SUDAH DIHAPUS
 });
+
+
+// ... route lainnya ...
+
+Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+
+// TAMBAHKAN DUA BARIS INI:
+Route::get('/admin/laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
+Route::get('/admin/laporan/pdf', [LaporanController::class, 'cetakPdf'])->name('laporan.pdf');
 // =========================================================================
 // 4. RUTE OTENTIKASI (Laravel Breeze: Login, Register, Logout, dll)
 // =========================================================================
