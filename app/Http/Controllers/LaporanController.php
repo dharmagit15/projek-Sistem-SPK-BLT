@@ -156,10 +156,96 @@ class LaporanController extends Controller
 
     public function cetakPdf(Request $request)
     {
-        // Parameter query dinamis juga bisa ditangkap di sini untuk menyaring data PDF nantinya
         $search = $request->input('search');
         $status = $request->input('status');
 
-        return "Fungsi cetak PDF akan mengeksekusi stream dokumen berdasarkan filter pencarian.";
+        $kriterias = Kriteria::all();
+        $wargas = Alternatif::with('kriterias')->get();
+
+        if ($wargas->isEmpty() || $kriterias->isEmpty()) {
+            $alternatifs = [];
+            $pdf = Pdf::loadView('laporan.cetak', compact('alternatifs'));
+            return $pdf->stream('laporan_spk_blt_' . date('Y') . '.pdf');
+        }
+
+        // Cari Nilai Max/Min untuk pembagi Normalisasi
+        $minMax = [];
+        foreach ($kriterias as $k) {
+            $nilaiWarga = $wargas->map(function($w) use ($k) {
+                $pivot = $w->kriterias->where('id', $k->id)->first();
+                return $pivot ? (float)$pivot->pivot->nilai : 0.0;
+            })->toArray();
+
+            $minMax[$k->id] = [
+                'max' => !empty($nilaiWarga) ? max($nilaiWarga) : 1,
+                'min' => !empty($nilaiWarga) ? min($nilaiWarga) : 1,
+            ];
+        }
+
+        // Hitung Skor Akhir Per Alternatif
+        $hasilRanking = [];
+        foreach ($wargas as $warga) {
+            $skorAkhir = 0;
+
+            foreach ($kriterias as $k) {
+                $pivot = $warga->kriterias->where('id', $k->id)->first();
+                $nilaiAsli = $pivot ? (float)$pivot->pivot->nilai : 0.0;
+                $bobot = (float)$k->bobot; 
+
+                // Rumus Normalisasi SAW (Benefit / Cost)
+                if (trim(strtolower($k->jenis)) == 'benefit') {
+                    $r = $minMax[$k->id]['max'] > 0 ? ($nilaiAsli / $minMax[$k->id]['max']) : 0;
+                } else { // Cost
+                    $r = $nilaiAsli > 0 ? ($minMax[$k->id]['min'] / $nilaiAsli) : 0;
+                }
+
+                $skorAkhir += ($r * $bobot);
+            }
+
+            // Tentukan status kelayakan berdasarkan threshold skor akhir
+            $statusKelayakan = ($skorAkhir >= 0.65) ? 'LAYAK' : 'TIDAK LAYAK';
+
+            $hasilRanking[] = [
+                'id'               => $warga->id,
+                'nik'              => $warga->nik,
+                'nama'             => $warga->nama,
+                'alamat'           => $warga->alamat,    
+                'no_telp'          => $warga->no_telp,   
+                'status'           => $warga->status, 
+                'created_at'       => $warga->created_at, 
+                'skor_akhir'       => $skorAkhir,
+                'status_kelayakan' => $statusKelayakan
+            ];
+        }
+
+        $collectionRanking = collect($hasilRanking);
+
+        // Filter 1: Berdasarkan teks input Pencarian (NIK, Nama, Alamat)
+        if (!empty($search)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($search) {
+                return false !== stripos($item['nik'], $search) || 
+                       false !== stripos($item['nama'], $search) || 
+                       false !== stripos($item['alamat'], $search);
+            });
+        }
+
+        // Filter 2: Berdasarkan Status Kelayakan/Verifikasi
+        if (!empty($status)) {
+            $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
+                return $item['status_kelayakan'] === strtoupper($status) || 
+                       $item['status'] === $status;
+            });
+        }
+
+        // Urutkan berdasarkan Skor Akhir tertinggi (Ranking)
+        $sortedRanking = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
+
+        // Cast to object for view
+        $alternatifs = array_map(function ($item) {
+            return (object) $item;
+        }, $sortedRanking);
+
+        $pdf = Pdf::loadView('laporan.cetak', compact('alternatifs'));
+        return $pdf->stream('laporan_spk_blt_' . date('Y') . '.pdf');
     }
 }

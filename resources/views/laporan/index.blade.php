@@ -18,7 +18,7 @@
         </div>
         
         <div class="flex flex-wrap gap-3 relative z-10">
-            <a href="{{ route('laporan.pdf') }}" target="_blank" class="group flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 text-sm overflow-hidden relative">
+            <a href="{{ route('laporan.pdf', ['search' => $search, 'status' => $status]) }}" target="_blank" class="group flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-300 text-sm overflow-hidden relative">
                 <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
                 <span class="material-symbols-outlined text-[20px] relative z-10">print</span>
                 <span class="relative z-10">Cetak PDF</span>
@@ -122,6 +122,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Search & Filter Form (Dinamis & Responsif) -->
+    <form action="{{ route('laporan.index') }}" method="GET" class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row md:items-center gap-4">
+        <!-- Search Input -->
+        <div class="relative flex-grow">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input 
+                type="text" 
+                name="search" 
+                value="{{ $search }}" 
+                placeholder="Cari NIK, nama, atau alamat..." 
+                class="w-full pl-11 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-slate-50/50"
+            >
+        </div>
+
+        <!-- Filters & Action Button -->
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <!-- Filter Status -->
+            <select name="status" class="flex-grow md:flex-initial border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-slate-50/50 min-w-[160px]">
+                <option value="">Semua Status</option>
+                <optgroup label="Status Verifikasi">
+                    <option value="Terverifikasi" @selected($status === 'Terverifikasi')>Terverifikasi</option>
+                    <option value="Review" @selected($status === 'Review')>Review</option>
+                    <option value="Ditolak" @selected($status === 'Ditolak')>Ditolak</option>
+                </optgroup>
+                <optgroup label="Hasil Kelayakan">
+                    <option value="LAYAK" @selected($status === 'LAYAK')>LAYAK</option>
+                    <option value="TIDAK LAYAK" @selected($status === 'TIDAK LAYAK')>TIDAK LAYAK</option>
+                </optgroup>
+            </select>
+
+            <!-- Limit Halaman (perPage) -->
+            <select name="per_page" class="flex-grow md:flex-initial border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors bg-slate-50/50 min-w-[130px]">
+                @foreach([5, 10, 25, 50, 100] as $opt)
+                    <option value="{{ $opt }}" @selected((int) $perPage === $opt)>{{ $opt }} / hal</option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all duration-300 text-sm active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">tune</span>
+                <span>Terapkan</span>
+            </button>
+
+            @if($search || $status)
+                <a href="{{ route('laporan.index') }}" class="text-sm font-semibold text-slate-500 hover:text-rose-600 transition-colors px-2 py-2.5">
+                    Reset
+                </a>
+            @endif
+        </div>
+    </form>
 
     <!-- Main Table Section -->
     <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
