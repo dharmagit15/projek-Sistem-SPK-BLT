@@ -148,45 +148,7 @@
 </head>
 <body class="bg-background text-on-background font-body-lg antialiased flex flex-col min-h-screen">
 
-    <nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
-        <div class="flex items-center gap-8">
-            <span class="font-headline-md text-headline-md font-bold text-primary">SPK-BLT</span>
-            <div class="hidden md:flex gap-6">
-                <a class="text-primary font-bold border-b-2 border-primary py-1 text-body-lg" href="#">Program</a>
-            </div>
-        </div>
-        
-        <div class="flex items-center gap-4 ml-auto">
-            @if (Route::has('login'))
-                @auth
-                    <span class="text-sm font-semibold text-on-surface-variant bg-surface-container-low px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-secondary-fixed-dim animate-pulse"></span>
-                        Halo, {{ Auth::user()->name }}
-                    </span>
-                    
-                    @if(Auth::user()->role === 'admin')
-                        <a href="{{ route('admin.dashboard') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Panel Admin
-                        </a>
-                    @endif
-                    
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="border border-error text-error px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-error/10 transition-all flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[18px]">logout</span> Keluar
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="text-primary hover:underline font-label-md text-label-md px-2">
-                        Masuk
-                    </a>
-                    <a href="{{ route('user.pendaftaran.create') }}" class="bg-primary-container text-on-primary-container px-6 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-all">
-                        Pendaftaran SPK BLT
-                    </a>
-                @endauth
-            @endif
-        </div>
-    </nav>
+    <x-public-header />
 
     <main class="flex-grow pt-16">
         <section class="relative overflow-hidden hero-gradient py-24 md:py-32 px-margin-desktop">

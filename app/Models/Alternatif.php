@@ -11,7 +11,15 @@ class Alternatif extends Model
 
     protected $table = 'alternatifs';
 
-    protected $fillable = ['nik', 'nama', 'alamat', 'no_telp', 'status', 'foto_ktp'];
+    protected $fillable = ['user_id', 'nik', 'nama', 'alamat', 'no_telp', 'status', 'foto_ktp'];
+
+    /**
+     * Relasi ke User pengaju pendaftaran
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Relasi Many-to-Many ke Kriteria melalui tabel pivot alternatif_kriteria

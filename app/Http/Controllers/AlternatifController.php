@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alternatif;
+use App\Models\Kriteria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage; // <= INI YANG HARUS DITAMBAHKAN AGAR TIDAK MERAH
 
@@ -80,30 +81,63 @@ class AlternatifController extends Controller
         return redirect()->route('alternatif.index')->with('success', 'Data warga berhasil ditambahkan!');
     }
 
-    // 3a. Menampilkan form pendaftaran SPK BLT publik
+    // 3a. Menampilkan form pendaftaran SPK BLT bagi pengguna terautentikasi (1 akun = 1 pendaftaran)
     public function publicCreate()
     {
-        return view('alternatif.public-create');
+        // Cek jika akun yang sedang login sudah pernah mendaftar
+        $existing = Alternatif::where('user_id', auth()->id())->first();
+        if ($existing) {
+            return redirect()->route('user.pendaftaran.show', $existing->id)
+                ->with('info', 'Akun Anda sudah pernah mengirimkan data pendaftaran SPK BLT.');
+        }
+
+        // Ambil kriteria secara dinamis dari database (otomatis menyesuaikan jika ada kriteria baru)
+        $kriterias = Kriteria::orderBy('id', 'asc')->get();
+
+        return view('alternatif.public.create', compact('kriterias'));
     }
 
-    // 3b. Menyimpan pendaftaran spesial pengguna umum (hanya submit, tanpa edit)
+    // 3b. Menyimpan pendaftaran pengguna beserta nilai kriteria yang diisi
     public function publicStore(Request $request)
     {
-        $request->validate([
+        // Cek ganda agar user tidak bisa double submit via POST
+        $existing = Alternatif::where('user_id', auth()->id())->first();
+        if ($existing) {
+            return redirect()->route('user.pendaftaran.show', $existing->id)
+                ->with('info', 'Akun Anda sudah pernah mendaftar.');
+        }
+
+        $kriterias = Kriteria::all();
+
+        $rules = [
             'nik'      => 'required|numeric|digits:16|unique:alternatifs,nik',
             'nama'     => 'required|string|max:255',
             'alamat'   => 'required|string',
             'no_telp'  => 'required|string|max:20',
             'foto_ktp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ], [
-            'nik.required' => 'NIK wajib diisi.',
-            'nik.digits'   => 'NIK harus tepat berukuran 16 digit.',
-            'nik.unique'   => 'NIK ini sudah terdaftar di sistem.',
-            'nama.required' => 'Nama Kepala Keluarga wajib diisi.',
+        ];
+
+        $messages = [
+            'nik.required'   => 'NIK wajib diisi.',
+            'nik.digits'     => 'NIK harus tepat berukuran 16 digit.',
+            'nik.unique'     => 'NIK ini sudah terdaftar di sistem.',
+            'nama.required'  => 'Nama Kepala Keluarga wajib diisi.',
             'foto_ktp.image' => 'File yang diunggah harus berupa gambar.',
-            'foto_ktp.mimes'  => 'Format foto KTP harus JPG, JPEG, atau PNG.',
-            'foto_ktp.max'    => 'Ukuran foto KTP maksimal 2MB.',
-        ]);
+            'foto_ktp.mimes' => 'Format foto KTP harus JPG, JPEG, atau PNG.',
+            'foto_ktp.max'   => 'Ukuran foto KTP maksimal 2MB.',
+        ];
+
+        // Aturan validasi dinamis untuk setiap kriteria yang ada di database
+        if ($kriterias->count() > 0) {
+            $rules['nilai'] = 'required|array';
+            foreach ($kriterias as $k) {
+                $rules["nilai.{$k->id}"] = 'required|numeric';
+                $messages["nilai.{$k->id}.required"] = "Nilai untuk kriteria '{$k->nama}' ({$k->kode}) wajib diisi.";
+                $messages["nilai.{$k->id}.numeric"]  = "Nilai untuk kriteria '{$k->nama}' harus berupa angka.";
+            }
+        }
+
+        $request->validate($rules, $messages);
 
         $fotoPath = null;
         if ($request->hasFile('foto_ktp')) {
@@ -111,6 +145,7 @@ class AlternatifController extends Controller
         }
 
         $alternatif = Alternatif::create([
+            'user_id'  => auth()->id(),
             'nik'      => $request->nik,
             'nama'     => $request->nama,
             'alamat'   => $request->alamat,
@@ -119,16 +154,36 @@ class AlternatifController extends Controller
             'foto_ktp' => $fotoPath,
         ]);
 
+        // Simpan/Integrasikan nilai kriteria ke tabel pivot alternatif_kriteria
+        if ($request->has('nilai') && is_array($request->nilai)) {
+            $syncData = [];
+            foreach ($request->nilai as $kriteriaId => $nilaiVal) {
+                $syncData[$kriteriaId] = ['nilai' => (float)$nilaiVal];
+            }
+            $alternatif->kriterias()->sync($syncData);
+        }
+
         return redirect()->route('user.pendaftaran.show', $alternatif->id)
-            ->with('success', 'Data pendaftaran SPK BLT berhasil dikirim.');
+            ->with('success', 'Data pendaftaran SPK BLT & kriteria berhasil dikirim.');
     }
 
-    // 3c. Menampilkan ringkasan read-only hasil pengajuan user
+    // 3c. Menampilkan ringkasan hasil pengajuan user beserta nilai kriterianya
     public function publicShow($id)
     {
-        $alternatif = Alternatif::findOrFail($id);
+        $alternatif = Alternatif::with('kriterias')->findOrFail($id);
 
-        return view('alternatif.public-show', compact('alternatif'));
+        return view('alternatif.public.show', compact('alternatif'));
+    }
+
+    // 3d. Menampilkan riwayat pendaftaran pengguna (spesifik untuk user login)
+    public function publicIndex()
+    {
+        $alternatifs = Alternatif::with('kriterias')
+            ->where('user_id', auth()->id())
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('alternatif.public.index', compact('alternatifs'));
     }
 
     // 4. Menghapus data alternatif warga
