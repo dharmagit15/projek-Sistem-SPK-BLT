@@ -163,10 +163,9 @@ class LaporanController extends Controller
         $wargas = Alternatif::with('kriterias')->get();
 
         if ($wargas->isEmpty() || $kriterias->isEmpty()) {
-            $pdf = Pdf::loadView('laporan.cetak', [
-                'alternatifs' => []
-            ]);
-            return $pdf->stream('laporan-spk-blt.pdf');
+            $alternatifs = [];
+            $pdf = Pdf::loadView('laporan.cetak', compact('alternatifs'));
+            return $pdf->stream('laporan_spk_blt_' . date('Y') . '.pdf');
         }
 
         // Cari Nilai Max/Min untuk pembagi Normalisasi
@@ -203,14 +202,19 @@ class LaporanController extends Controller
                 $skorAkhir += ($r * $bobot);
             }
 
+            // Tentukan status kelayakan berdasarkan threshold skor akhir
+            $statusKelayakan = ($skorAkhir >= 0.65) ? 'LAYAK' : 'TIDAK LAYAK';
+
             $hasilRanking[] = [
-                'id'         => $warga->id,
-                'nik'        => $warga->nik,
-                'nama'       => $warga->nama,
-                'alamat'     => $warga->alamat,    
-                'status'     => $warga->status, 
-                'created_at' => $warga->created_at, 
-                'skor_akhir' => $skorAkhir,
+                'id'               => $warga->id,
+                'nik'              => $warga->nik,
+                'nama'             => $warga->nama,
+                'alamat'           => $warga->alamat,    
+                'no_telp'          => $warga->no_telp,   
+                'status'           => $warga->status, 
+                'created_at'       => $warga->created_at, 
+                'skor_akhir'       => $skorAkhir,
+                'status_kelayakan' => $statusKelayakan
             ];
         }
 
@@ -225,22 +229,23 @@ class LaporanController extends Controller
             });
         }
 
-        // Filter 2: Berdasarkan Status
+        // Filter 2: Berdasarkan Status Kelayakan/Verifikasi
         if (!empty($status)) {
             $collectionRanking = $collectionRanking->filter(function ($item) use ($status) {
-                return $item['status'] === $status;
+                return $item['status_kelayakan'] === strtoupper($status) || 
+                       $item['status'] === $status;
             });
         }
 
         // Urutkan berdasarkan Skor Akhir tertinggi (Ranking)
         $sortedRanking = $collectionRanking->sortByDesc('skor_akhir')->values()->all();
 
-        // Cast to objects for easy view rendering
+        // Cast to object for view
         $alternatifs = array_map(function ($item) {
             return (object) $item;
         }, $sortedRanking);
 
         $pdf = Pdf::loadView('laporan.cetak', compact('alternatifs'));
-        return $pdf->stream('laporan-spk-blt.pdf');
+        return $pdf->stream('laporan_spk_blt_' . date('Y') . '.pdf');
     }
 }

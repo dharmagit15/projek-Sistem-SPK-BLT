@@ -15,12 +15,14 @@ class SawController extends Controller
     {
         $kriterias = Kriteria::all();
         $alternatifs = Alternatif::with('kriterias')->get();
+        $totalBobot = Kriteria::sum('bobot');
 
         // Antisipasi jika data masih kosong agar halaman view tidak crash
         if ($alternatifs->isEmpty() || $kriterias->isEmpty()) {
             return view('perhitungan.index', [
                 'kriterias' => collect(),
-                'hasilRanking' => []
+                'hasilRanking' => [],
+                'totalBobot' => $totalBobot
             ]);
         }
 
@@ -62,7 +64,7 @@ class SawController extends Controller
                 $nilaiNormalisasi = 0;
 
                 // Logika pembagian normalisasi matriks (R) sesuai jenis kriteria
-                if (strtolower($kcriteria->jenis) == 'benefit' || strtolower($kcriteria->jenis) == 'benefit ') {
+                if (strtolower(trim($kcriteria->jenis)) == 'benefit') {
                     // Rumus Benefit: R_ij = X_ij / Max(X)
                     $nilaiNormalisasi = $maxGlobal > 0 ? ($nilaiAsli / $maxGlobal) : 0;
                 } else {
@@ -104,7 +106,7 @@ class SawController extends Controller
             return $b['skor_akhir'] <=> $a['skor_akhir'];
         });
 
-        return view('perhitungan.index', compact('kriterias', 'hasilRanking'));
+        return view('perhitungan.index', compact('kriterias', 'hasilRanking', 'totalBobot'));
     }
 
     /**

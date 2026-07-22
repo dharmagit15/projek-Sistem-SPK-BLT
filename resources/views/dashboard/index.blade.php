@@ -9,13 +9,14 @@
             <p class="text-sm text-slate-500 mt-1">Berikut adalah ringkasan data Sistem Pendukung Keputusan hari ini.</p>
         </div>
         <div>
-                <a href="http://127.0.0.1:8000/admin/kriteria" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
-        <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
-        Mulai Hitung SPK
-    </a>
+            <a href="{{ route('perhitungan.index') }}" class="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98]">
+                <span class="material-symbols-outlined text-[18px] mr-2">analytics</span>
+                Mulai Hitung SPK
+            </a>
         </div>
     </div>
 
+    <!-- 4 Stats Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-slate-300 transition-all">
@@ -44,18 +45,18 @@
             </div>
         </div>
 
-        <a href="{{ route('users.index') }}" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-blue-300 transition-all">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-slate-300 transition-all">
             <div class="space-y-2 z-10">
-                <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Pengguna</p>
-                <h3 class="text-3xl font-extrabold text-slate-800">{{ $totalUser ?? 0 }}</h3>
-                <span class="inline-flex items-center text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
-                    Akun Terdaftar
-                </span>
+                <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Selesai Dinilai</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">{{ $persentaseDinilai ?? 0 }}%</h3>
+                <div class="w-24 bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div class="bg-emerald-500 h-full rounded-full" style="width: {{ $persentaseDinilai ?? 0 }}%"></div>
+                </div>
             </div>
-            <div class="p-4 bg-purple-50 text-purple-600 rounded-xl transition-colors group-hover:bg-purple-100">
-                <span class="material-symbols-outlined text-[28px] block">manage_accounts</span>
+            <div class="p-4 bg-emerald-50 text-emerald-600 rounded-xl transition-colors group-hover:bg-emerald-100">
+                <span class="material-symbols-outlined text-[28px] block">task_alt</span>
             </div>
-        </a>
+        </div>
 
         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between relative overflow-hidden group hover:border-slate-300 transition-all">
             <div class="space-y-2 z-10">
@@ -70,16 +71,21 @@
 
     </div>
 
+    <!-- Main Content Panels -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+        <!-- Left Panel: Table Kriteria -->
+        <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.015)] overflow-hidden flex flex-col justify-between">
             <div>
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold text-slate-800">Daftar Kriteria Terdaftar</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Ringkasan kriteria bobot penilaian SPK BLT.</p>
+                        <h3 class="font-black text-slate-800 tracking-tight text-lg">Daftar Kriteria Terdaftar</h3>
+                        <p class="text-xs text-slate-400 mt-1">Ringkasan kriteria bobot penilaian SPK BLT.</p>
                     </div>
-                    <a href="{{ route('kriteria.index') }}" class="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline">Lihat Semua</a>
+                    <a href="{{ route('kriteria.index') }}" class="inline-flex items-center text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/80 px-3 py-1.5 rounded-xl transition-colors">
+                        Lihat Semua
+                        <span class="material-symbols-outlined text-[16px] ml-1">arrow_forward</span>
+                    </a>
                 </div>
                 
                 <div class="overflow-x-auto">
@@ -92,7 +98,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm text-slate-700 font-medium">
-                        {{-- PERBAIKAN: Menggunakan @forelse terstruktur tanpa sisa komponen gantung --}}
                         @forelse($daftarKriteria as $kriteria)
                             <tr class="hover:bg-slate-50/40 transition-colors">
                                 <td class="py-3.5 px-6">
@@ -123,7 +128,7 @@
             </div>
             
             <div class="p-4 bg-slate-50/50 border-t border-slate-100 text-center">
-                <span class="text-xs text-slate-400 font-medium">Total Terhitung: {{ $totalKriteria ?? 0 }} Atribut Valid</span>
+                <span class="text-xs text-slate-400 font-medium">Total Terhitung: <strong class="text-slate-700 font-bold">{{ $totalKriteria ?? 0 }}</strong> Atribut Valid</span>
             </div>
         </div>
 
@@ -137,6 +142,32 @@
                     <p class="text-xs font-bold text-slate-700">Sistem Berhasil Diperbarui</p>
                     <p class="text-[11px] text-slate-400 mt-0.5">Oleh Admin • Baru Saja</p>
                 </div>
+
+                @if(isset($recentAlternatifs) && count($recentAlternatifs) > 0)
+                    @foreach($recentAlternatifs as $recent)
+                        <div class="relative">
+                            <span class="absolute -left-[22px] top-1 w-3 h-3 rounded-full border-2 border-white bg-emerald-500 ring-4 ring-emerald-50"></span>
+                            <p class="text-xs font-bold text-slate-700">Registrasi Warga: {{ $recent->nama }}</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">NIK: {{ $recent->nik }} • {{ $recent->created_at ? $recent->created_at->diffForHumans() : 'Baru saja' }}</p>
+                        </div>
+                    @endforeach
+                @endif
+
+                @if(($totalKriteria ?? 0) > 0 && ($totalAlternatif ?? 0) > 0)
+                    <div class="relative">
+                        <span class="absolute -left-[22px] top-1 w-3 h-3 rounded-full border-2 border-white bg-purple-600 ring-4 ring-purple-50"></span>
+                        <p class="text-xs font-bold text-slate-700">Modul Perhitungan SPK (SAW)</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Siap digunakan dengan {{ $totalKriteria }} kriteria & {{ $totalAlternatif }} warga</p>
+                    </div>
+                @endif
+            </div>
+            
+            <div class="pt-6 mt-6 border-t border-slate-50 flex items-center justify-between text-xs text-slate-400">
+                <span>Status Server</span>
+                <span class="inline-flex items-center gap-1 font-bold text-emerald-600">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                    Online
+                </span>
             </div>
         </div>
 

@@ -3,6 +3,18 @@
 @section('content')
 <div class="w-full">
 
+    {{-- Alert Warning if Total Weight != 1.0 (or 100%) --}}
+    @if(isset($totalBobot) && abs($totalBobot - 1.0) > 0.001)
+    <div class="flex justify-between items-center bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-r-lg shadow-sm">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-amber-500">warning</span>
+            <p class="text-amber-700 text-sm font-medium m-0">
+                <strong>Peringatan!</strong> Total bobot kriteria saat ini adalah {{ $totalBobot * 100 }}% (atau {{ $totalBobot }}). Total bobot kriteria harus tepat bernilai 100% atau 1.0 agar hasil perhitungan SAW akurat. Silakan sesuaikan bobot di menu kelola kriteria.
+            </p>
+        </div>
+    </div>
+    @endif
+
     {{-- Alert Success --}}
     @if(session('success'))
     <div class="flex justify-between items-center bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-r-lg shadow-sm">
